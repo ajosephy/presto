@@ -119,6 +119,7 @@ double max_rz_file(FILE * fftfile, double rin, double zin,
 
 static int max_num_harmonics;
 static fcomplex* maxdata_harmonics[MAX_HARMONICS];
+static double maxlocpow[MAX_HARMONICS];
 static int maxr_offset[MAX_HARMONICS];
 static double power_call_rz_harmonics(double rz[])
 {
@@ -131,7 +132,7 @@ static double power_call_rz_harmonics(double rz[])
        rz_interp(maxdata_harmonics[i-1], nummaxdata, 
                (maxr_offset[i-1]+rz[0])*i-maxr_offset[i-1], rz[1] * ZSCALE * i, 
                max_kern_half_width, &ans);
-       total_power += POWER(ans.r, ans.i);
+       total_power += POWER(ans.r, ans.i)/maxlocpow[i-1];
     }
     return -total_power;
 }
@@ -154,6 +155,7 @@ void max_rz_arr_harmonics(fcomplex* data[MAX_HARMONICS], int num_harmonics,
        maxdata_harmonics[i-1] = data[i-1];
        maxr_offset[i-1] = r_offset[i-1];
        locpow[i-1] = get_localpower3d(data[i-1], numdata, (r_offset[i-1]+rin)*i-r_offset[i-1], zin*i, 0.0);
+       maxlocpow[i-1]=locpow[i-1];
    }
    nummaxdata = numdata;
    max_num_harmonics = num_harmonics;
@@ -212,7 +214,7 @@ void max_rz_arr_harmonics(fcomplex* data[MAX_HARMONICS], int num_harmonics,
 
    *rout = x[0][0];
    *zout = x[0][1] * ZSCALE;
-   for (i=1; i<num_harmonics; i++) {
+   for (i=1; i<=num_harmonics; i++) {
        locpow[i-1] = get_localpower3d(data[i-1], numdata, (r_offset[i-1]+*rout)*i-r_offset[i-1], (*zout)*i, 0.0);
        x[0][0] = (r_offset[i-1]+*rout)*i-r_offset[i-1];
        x[0][1] = *zout/ZSCALE * i;
@@ -240,7 +242,7 @@ void max_rz_file_harmonics(FILE * fftfile, int num_harmonics,
    kern_half_width = z_resp_halfwidth(maxz, HIGHACC);
    filedatalen = 2 * kern_half_width + extra;
 
-   for (i=1;i<num_harmonics;i++) {
+   for (i=1;i<=num_harmonics;i++) {
        rin_frac = modf(rin*i, &rin_int);
        r_offset[i-1] = (int) rin_int - filedatalen / 2 + lobin;
        filedata[i-1] = read_fcomplex_file(fftfile, r_offset[i-1], filedatalen);

@@ -568,7 +568,7 @@ void output_fundamentals(fourierprops * props, GSList * list,
    /* Close the old work file and open the cand file */
 
    if (!obs->dat_input)
-      fclose(obs->workfile);
+      fclose(obs->workfile); /* Why is this here? -A */
    obs->workfile = chkfopen(obs->accelnm, "w");
 
    /* Set our candidate notes to all spaces */
@@ -632,6 +632,8 @@ void output_fundamentals(fourierprops * props, GSList * list,
          double phs0, phscorr, amp;
          rderivs harm;
 
+         /* These phase calculations assume the fundamental is best */
+         /* Better to irfft them and check the amplitude */
          phs0 = cand->derivs[0].phs;
          for (jj = 0; jj < cand->numharm; jj++) {
             harm = cand->derivs[jj];
