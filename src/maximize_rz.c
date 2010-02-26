@@ -231,6 +231,7 @@ void max_rz_file_harmonics(FILE * fftfile, int num_harmonics,
                              double maxpow[MAX_HARMONICS])
 /* Return the Fourier frequency and Fourier f-dot that      */
 /* maximizes the power of the candidate in 'fftfile'.       */
+/* WARNING: not tested */
 {
    int i;
    double maxz, rin_int, rin_frac;
