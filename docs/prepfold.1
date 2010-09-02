@@ -11,7 +11,11 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
+<<<<<<< HEAD:docs/prepfold.1
 .TH "prepfold" 1 "24Feb10" "Clig-manuals" "Programmer's Manual"
+=======
+.TH "prepfold" 1 "23Mar10" "Clig-manuals" "Programmer's Manual"
+>>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:docs/prepfold.1
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -29,6 +33,9 @@ prepfold \- Prepares (if required) and folds raw radio data, standard time serie
 [-spigot]
 [-filterbank]
 [-psrfits]
+[-noweights]
+[-noscales]
+[-nooffsets]
 [-wapp]
 [-window]
 [-topo]
@@ -115,6 +122,12 @@ Raw data in Caltech-NRAO Spigot Card format.
 Raw data in SIGPROC filterbank format.
 .IP -psrfits
 Raw data in PSRFITS format.
+.IP -noweights
+Do not apply PSRFITS weights.
+.IP -noscales
+Do not apply PSRFITS scales.
+.IP -nooffsets
+Do not apply PSRFITS offsets.
 .IP -wapp
 Raw data in Wideband Arecibo Pulsar Processor (WAPP) format.
 .IP -window

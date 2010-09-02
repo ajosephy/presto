@@ -316,6 +316,10 @@ int main(int argc, char *argv[])
          char scope[40];
          
          printf("PSRFITS input file information:\n");
+          // -1 causes the data to determine if we use weights, scales, & offsets
+         s.apply_weight = (cmd->noweightsP) ? 0 : -1;
+         s.apply_scale  = (cmd->noscalesP) ? 0 : -1;
+         s.apply_offset = (cmd->nooffsetsP) ? 0 : -1;
          read_PSRFITS_files(cmd->argv, cmd->argc, &s);
          N = s.N;
          ptsperblock = s.spectra_per_subint;
@@ -669,7 +673,7 @@ int main(int argc, char *argv[])
                oldbin = currentbin;
             }
          }
-         *diffbinptr = INT_MAX; /* Used as a marker */
+         *diffbinptr = cmd->numout; /* Used as a marker */
       }
       diffbinptr = diffbins;
 
@@ -743,6 +747,7 @@ int main(int argc, char *argv[])
          /* the next bin that will be added or removed.      */
 
          numtowrite = abs(*diffbinptr) - datawrote;
+         /* FIXME: numtowrite+totwrote can wrap! */
          if (cmd->numoutP && (totwrote + numtowrite) > cmd->numout)
             numtowrite = cmd->numout - totwrote;
          if (numtowrite > numread)
@@ -850,7 +855,7 @@ int main(int argc, char *argv[])
 
    /* Set the padded points equal to the average data point */
 
-   if (idata.numonoff > 1) {
+   if (idata.numonoff >= 1) {
       int jj, index, startpad, endpad;
 
       for (ii = 0; ii < worklen; ii++)

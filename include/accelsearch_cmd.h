@@ -43,6 +43,10 @@ typedef struct s_Cmdline {
   int fhiC;
   /***** -photon: Data is poissonian so use freq 0 as power normalization */
   char photonP;
+  /***** -median: Use old-style block-median power normalization (current default) */
+  char medianP;
+  /***** -locpow: Use new-style double-tophat local-power normalization */
+  char locpowP;
   /***** -zaplist: A file of freqs+widths to zap from the FFT (only if the input file is a *.[s]dat file) */
   char zaplistP;
   char* zaplist;
