@@ -20,8 +20,8 @@ void file_reg_candidates(fourierprops cand[], char *notes, int numcands,
    fname = chkfopen(longname, "w");
 
    if (numcands <= 0) {
-      printf(" Must have at least 1 candidate in ");
-      printf("file_reg_candidates().\n\n");
+      fprintf(stderr, " Must have at least 1 candidate in ");
+      fprintf(stderr, "file_reg_candidates().\n\n");
       exit(1);
    }
    pages = numcands / nlines + 1;
@@ -137,8 +137,8 @@ void file_bin_candidates(binaryprops cand[], char *notes, int numcands, char nam
    fname = chkfopen(filenm, "w");
 
    if (numcands <= 0) {
-      printf(" Must have at least 1 candidate in ");
-      printf("file_bin_candidates().\n\n");
+      fprintf(stderr, " Must have at least 1 candidate in ");
+      fprintf(stderr, "file_bin_candidates().\n\n");
       exit(1);
    }
    pages = numcands / nlines + 1;

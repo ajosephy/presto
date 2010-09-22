@@ -570,8 +570,8 @@ void file_rawbin_candidates(rawbincand * cand, char *notes,
    fname = chkfopen(filenm, "w");
 
    if (numcands <= 0) {
-      printf(" Must have at least 1 candidate in ");
-      printf("file_bin_candidates().\n\n");
+      fprintf(stderr, " Must have at least 1 candidate in ");
+      fprintf(stderr, "file_bin_candidates().\n\n");
       exit(1);
    }
    pages = numcands / nlines + 1;

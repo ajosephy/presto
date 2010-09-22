@@ -19,7 +19,7 @@ FILE *chkfopen(char *path, const char *mode)
 
    if ((file = fopen(path, mode)) == NULL) {
       perror("\nError in chkfopen()");
-      printf("   path = '%s'\n", path);
+      fprintf(stderr, "   path = '%s'\n", path);
       exit(-1);
    }
    return (file);
@@ -33,7 +33,7 @@ size_t chkfread(void *data, size_t type, size_t number, FILE * stream)
    num = fread(data, type, number, stream);
    if (num != number && ferror(stream)) {
       perror("\nError in chkfread()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    return num;
@@ -47,7 +47,7 @@ size_t chkfwrite(void *data, size_t type, size_t number, FILE * stream)
    num = fwrite(data, type, number, stream);
    if (num != number && ferror(stream)) {
       perror("\nError in chkfwrite()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    return num;
@@ -68,7 +68,7 @@ size_t chkfileseek(FILE * stream, off_t offset, size_t size, int whence)
 
    if ((rt = fseeko(stream, offset * size, whence)) == -1) {
       perror("\nError in chkfileseek()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    return (rt);
@@ -84,7 +84,7 @@ long long chkfilelen(FILE * file, size_t size)
    rt = fstat(filenum, &buf);
    if (rt == -1) {
       perror("\nError in chkfilelen()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    return (long long) (buf.st_size / size);

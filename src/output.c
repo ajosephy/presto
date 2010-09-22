@@ -209,7 +209,7 @@ int nice_output_2(char *output, double val, double err, int len)
    } else if (errexp == 1 && outexp > 0) {
       sprintf(temp, "% d(%.2d)", (int) rndval, errval);
    } else {
-      printf("This is an undefined condition in nice_output2().\n");
+      fprintf(stderr, "This is an undefined condition in nice_output2().\n");
       exit(1);
    }
 
@@ -239,8 +239,8 @@ void print_candidate(fourierprops * cand, double dt, long N,
    else if (numerrdigits == 2)
       nice_output = nice_output_2;
    else {
-      printf("print_candidate() can't handle that many digits of\n");
-      printf("   precision. Use either 1 or 2.");
+      fprintf(stderr, "print_candidate() can't handle that many digits of\n");
+      fprintf(stderr, "   precision. Use either 1 or 2.");
       exit(1);
    }
    printf("\n");
@@ -329,8 +329,8 @@ void print_bin_candidate(binaryprops * cand, int numerrdigits)
    else if (numerrdigits == 2)
       nice_output = nice_output_2;
    else {
-      printf("print_bin_candidate() can't handle that many digits of\n");
-      printf("   precision. Use either 1 or 2.");
+      fprintf(stderr, "print_bin_candidate() can't handle that many digits of\n");
+      fprintf(stderr, "   precision. Use either 1 or 2.");
       exit(1);
    }
    printf("\n");

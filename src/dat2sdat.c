@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
                 "          Clipping the low values...\n\n", max, min, max - min);
          offset = max - SHRT_MAX;
       } else {
-         printf("Error:  There is way too much dynamic range in the data:\n"
+         fprintf(stderr, "Error:  There is way too much dynamic range in the data:\n"
                 "               max - min = %.2f - %.2f = %.2f\n"
                 "        Exiting.\n\n", max, min, max - min);
          exit(1);

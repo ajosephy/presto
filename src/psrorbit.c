@@ -71,13 +71,13 @@ int main(int argc, char *argv[])
 
             pnum = get_psr_at_epoch(argv[i], epoch, &psr);
             if (!pnum) {
-               printf("\nThe pulsar is not in the database.  Exiting.\n\n");
+               fprintf(stderr, "\nThe pulsar is not in the database.  Exiting.\n\n");
                exit(1);
             }
             if (psr.orb.p != 0.0) {
                orb = psr.orb;
             } else {
-               printf("\nPulsar is not in a binary.  Exiting.\n\n");
+               fprintf(stderr, "\nPulsar is not in a binary.  Exiting.\n\n");
                exit(1);
             }
             p_psr = psr.p;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             type = argv[i][0];
             if ((type != 'v') && (type != 'd') && (type != 'p')
                 && (type != 'z') && (type != 'a')) {
-               printf("The 'type' of plot selection is invalid.  Exiting.\n\n");
+               fprintf(stderr, "The 'type' of plot selection is invalid.  Exiting.\n\n");
                exit(1);
             }
          }

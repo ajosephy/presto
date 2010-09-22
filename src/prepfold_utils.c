@@ -168,7 +168,7 @@ int read_shorts(FILE * file, float *data, int numpts, int numchan)
    sdata = (short *) malloc((size_t) (sizeof(short) * (numpts * numchan)));
    if (!sdata) {
       perror("\nError allocating short array in read_shorts()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    numread = chkfread(sdata, sizeof(short),

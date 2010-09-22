@@ -119,7 +119,7 @@ void chop_complex_ends(fcomplex * data, int numdata,
    fcomplex zeros = { 0.0, 0.0 };
 
    if (numdata < 2 * chopbins) {
-      printf("\n  'chopbins' is too large in chop_complex_ends()\n\n");
+      fprintf(stderr, "\n  'chopbins' is too large in chop_complex_ends()\n\n");
       exit(1);
    }
    numtocopy = numdata - 2 * chopbins;
@@ -144,11 +144,11 @@ void chop_real_ends(float *data, int numdata,
   /*      end of the data array.                          */
 {
    if (numdata < 2 * chopbins) {
-      printf("\n  'chopbins' is too large in chop_complex_ends()\n\n");
+      fprintf(stderr, "\n  'chopbins' is too large in chop_complex_ends()\n\n");
       exit(1);
    }
    if (numresult < numdata - 2 * chopbins) {
-      printf("\n  'numresult' is too small in chop_complex_ends()\n\n");
+      fprintf(stderr, "\n  'numresult' is too small in chop_complex_ends()\n\n");
       exit(1);
    }
    memcpy(result, data + chopbins, sizeof(float) * (numdata - 2 * chopbins));

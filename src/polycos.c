@@ -180,7 +180,7 @@ int getpoly(double mjd, double duration, double *dm, FILE * fp, char *pname)
             if (binary)
                sscanf(binpha, "%lf%lf", &aphi0b[j], &adphib[j]);
             if (ncoeff > 15) {
-               printf("ncoeff too big in polyco.dat.\n");
+               fprintf(stderr, "ncoeff too big in polyco.dat.\n");
                exit(1);
             }
             if (ncoeff < 15)
@@ -188,7 +188,7 @@ int getpoly(double mjd, double duration, double *dm, FILE * fp, char *pname)
                   coeff[j][k] = 0.;
             rphase[j] -= floor(rphase[j]);
             if ((rphase[j] < 0.) || (rphase[j] > 1.)) {
-               printf("rphase[%d] = %f\n", j, rphase[j]);
+               fprintf(stderr, "rphase[%d] = %f\n", j, rphase[j]);
                exit(1);
             }
             j++;
@@ -238,7 +238,7 @@ int phcalc(double mjd0, double mjd1, int last_index, double *phase, double *psrf
             printf("phase = %21.15e   f0: %21.15e\n", *phase, f0[j]);
          *phase -= floor(*phase);
          if ((*phase < 0.) || (*phase > 1.)) {
-            printf("phase = %21.15f\n", *phase);
+            fprintf(stderr, "phase = %21.15f\n", *phase);
             exit(1);
          }
          icurr = j;
@@ -250,7 +250,7 @@ int phcalc(double mjd0, double mjd1, int last_index, double *phase, double *psrf
              (mjd0 + mjd1), mjdmid[0] - nblk / 2880.,
              mjdmid[isets - 1] + nblk / 2880.);
       *phase = -999.;
-      printf("isets = %d\n", isets);
+      fprintf(stderr, "isets = %d\n", isets);
       exit(1);
    }
    return icurr;

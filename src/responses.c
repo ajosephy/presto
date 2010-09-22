@@ -179,20 +179,20 @@ fcomplex *gen_r_response(double roffset, int numbetween, int numkern)
    /* Check that the arguments are OK */
 
    if (roffset < 0.0 || roffset >= 1.0) {
-      printf("\n  roffset = %f (out of bounds) in gen_r_response().\n\n", roffset);
+      fprintf(stderr, "\n  roffset = %f (out of bounds) in gen_r_response().\n\n", roffset);
       exit(-1);
    }
    if (numbetween < 1 || numbetween >= 20000) {
-      printf("\n  numbetween = %d (out of bounds) in gen_r_response().\n\n",
+      fprintf(stderr, "\n  numbetween = %d (out of bounds) in gen_r_response().\n\n",
              numbetween);
       exit(-1);
    }
    if (numkern < numbetween) {
-      printf("\n  numkern = %d (out of bounds) in gen_r_response().\n\n", numkern);
+      fprintf(stderr, "\n  numkern = %d (out of bounds) in gen_r_response().\n\n", numkern);
       exit(-1);
    }
    if ((numkern % (2 * numbetween)) != 0) {
-      printf("\n  numkern %% (2 * numbetween) != 0 in gen_r_response().\n\n");
+      fprintf(stderr, "\n  numkern %% (2 * numbetween) != 0 in gen_r_response().\n\n");
       exit(-1);
    }
 
@@ -251,20 +251,20 @@ fcomplex *gen_z_response(double roffset, int numbetween, double z, int numkern)
    /* Check that the arguments are OK */
 
    if (roffset < 0.0 || roffset >= 1.0) {
-      printf("\n  roffset = %f (out of bounds) in gen_z_response().\n\n", roffset);
+      fprintf(stderr, "\n  roffset = %f (out of bounds) in gen_z_response().\n\n", roffset);
       exit(-1);
    }
    if (numbetween < 1 || numbetween >= 20000) {
-      printf("\n  numbetween = %d (out of bounds) in gen_z_response().\n\n",
+      fprintf(stderr, "\n  numbetween = %d (out of bounds) in gen_z_response().\n\n",
              numbetween);
       exit(-1);
    }
    if (numkern < numbetween) {
-      printf("\n  numkern = %d (out of bounds) in gen_z_response().\n\n", numkern);
+      fprintf(stderr, "\n  numkern = %d (out of bounds) in gen_z_response().\n\n", numkern);
       exit(-1);
    }
    if ((numkern % (2 * numbetween)) != 0) {
-      printf("\n  numkern %% (2 * numbetween) != 0 in gen_z_response().\n\n");
+      fprintf(stderr, "\n  numkern %% (2 * numbetween) != 0 in gen_z_response().\n\n");
       exit(-1);
    }
 
@@ -347,20 +347,20 @@ fcomplex *gen_w_response(double roffset, int numbetween, double z,
    /* Check that the arguments are OK */
 
    if (roffset < 0.0 || roffset >= 1.0) {
-      printf("\n  roffset = %f (out of bounds) in gen_w_response().\n\n", roffset);
+      fprintf(stderr, "\n  roffset = %f (out of bounds) in gen_w_response().\n\n", roffset);
       exit(-1);
    }
    if (numbetween < 1 || numbetween >= 20000) {
-      printf("\n  numbetween = %d (out of bounds) in gen_w_response().\n\n",
+      fprintf(stderr, "\n  numbetween = %d (out of bounds) in gen_w_response().\n\n",
              numbetween);
       exit(-1);
    }
    if (numkern < numbetween) {
-      printf("\n  numkern = %d (out of bounds) in gen_w_response().\n\n", numkern);
+      fprintf(stderr, "\n  numkern = %d (out of bounds) in gen_w_response().\n\n", numkern);
       exit(-1);
    }
    if ((numkern % (2 * numbetween)) != 0) {
-      printf("\n  numkern %% (2 * numbetween) != 0 in gen_w_response().\n\n");
+      fprintf(stderr, "\n  numkern %% (2 * numbetween) != 0 in gen_w_response().\n\n");
       exit(-1);
    }
 
@@ -483,20 +483,20 @@ fcomplex *gen_bin_response(double roffset, int numbetween, double ppsr,
    /* Check that the arguments are OK */
 
    if (roffset < 0.0 || roffset >= 1.0) {
-      printf("\n  roffset = %f (out of bounds) in gen_bin_response().\n\n", roffset);
+      fprintf(stderr, "\n  roffset = %f (out of bounds) in gen_bin_response().\n\n", roffset);
       exit(-1);
    }
    if (numbetween < 1 || numbetween >= 20000) {
-      printf("\n  numbetween = %d (out of bounds) in gen_bin_response().\n\n",
+      fprintf(stderr, "\n  numbetween = %d (out of bounds) in gen_bin_response().\n\n",
              numbetween);
       exit(-1);
    }
    if (numkern < numbetween) {
-      printf("\n  numkern = %d (out of bounds) in gen_bin_response().\n\n", numkern);
+      fprintf(stderr, "\n  numkern = %d (out of bounds) in gen_bin_response().\n\n", numkern);
       exit(-1);
    }
    if ((numkern % (2 * numbetween)) != 0) {
-      printf("\n  numkern %% (2 * numbetween) != 0 in gen_bin_response().\n\n");
+      fprintf(stderr, "\n  numkern %% (2 * numbetween) != 0 in gen_bin_response().\n\n");
       exit(-1);
    }
 

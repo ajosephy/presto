@@ -326,7 +326,7 @@ int *ranges_to_ivect(char *str, int minval, int maxval, int *numvals)
       values = (int *) malloc((size_t) (sizeof(int) * numvalues));
       if (!values) {
          perror("\nAllocation error in ranges_to_ivect()");
-         printf("\n");
+         fprintf(stderr, "\n");
          exit(-1);
       }
 

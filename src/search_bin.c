@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
       ct <<= 1;
    }
    if (ii) {
-      printf("\n'maxfft' is out of range or not a power-of-2.\n\n");
+      fprintf(stderr, "\n'maxfft' is out of range or not a power-of-2.\n\n");
       exit(1);
    }
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
       ct <<= 1;
    }
    if (ii) {
-      printf("\n'minfft' is out of range or not a power-of-2.\n\n");
+      fprintf(stderr, "\n'minfft' is out of range or not a power-of-2.\n\n");
       exit(1);
    }
 
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
       if (cmd->rlo < cmd->lobin)
          cmd->rlo = cmd->lobin;
       if (cmd->rlo > cmd->lobin + nbins - 1) {
-         printf("\nLow frequency to search 'flo' is greater than\n");
-         printf("   the highest available frequency.  Exiting.\n\n");
+         fprintf(stderr, "\nLow frequency to search 'flo' is greater than\n");
+         fprintf(stderr, "   the highest available frequency.  Exiting.\n\n");
          exit(1);
       }
    } else {
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
       if (cmd->rlo < cmd->lobin)
          cmd->rlo = cmd->lobin;
       if (cmd->rlo > cmd->lobin + nbins - 1) {
-         printf("\nLow frequency to search 'rlo' is greater than\n");
-         printf("   the available number of points.  Exiting.\n\n");
+         fprintf(stderr, "\nLow frequency to search 'rlo' is greater than\n");
+         fprintf(stderr, "   the available number of points.  Exiting.\n\n");
          exit(1);
       }
    }
@@ -159,16 +159,16 @@ int main(int argc, char *argv[])
       if (cmd->rhi > cmd->lobin + nbins - 1)
          cmd->rhi = cmd->lobin + nbins - 1;
       if (cmd->rhi < cmd->rlo) {
-         printf("\nHigh frequency to search 'fhi' is less than\n");
-         printf("   the lowest frequency to search 'flo'.  Exiting.\n\n");
+         fprintf(stderr, "\nHigh frequency to search 'fhi' is less than\n");
+         fprintf(stderr, "   the lowest frequency to search 'flo'.  Exiting.\n\n");
          exit(1);
       }
    } else if (cmd->rhiP) {
       if (cmd->rhi > cmd->lobin + nbins - 1)
          cmd->rhi = cmd->lobin + nbins - 1;
       if (cmd->rhi < cmd->rlo) {
-         printf("\nHigh frequency to search 'rhi' is less than\n");
-         printf("   the lowest frequency to search 'rlo'.  Exiting.\n\n");
+         fprintf(stderr, "\nHigh frequency to search 'rhi' is less than\n");
+         fprintf(stderr, "   the lowest frequency to search 'rlo'.  Exiting.\n\n");
          exit(1);
       }
    }

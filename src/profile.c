@@ -120,7 +120,7 @@ int main(int argc, char **argv)
       if (cmd->psrnameP) {
          pnum = get_psr_at_epoch(cmd->psrname, epoch, &psr);
          if (!pnum) {
-            printf("The pulsar is not in the database.  Exiting.\n\n");
+            fprintf(stderr, "The pulsar is not in the database.  Exiting.\n\n");
             exit(1);
          }
          if (psr.orb.p != 0.0) {
@@ -175,9 +175,9 @@ int main(int argc, char **argv)
       } else if (cmd->rzwcandP) {
 
          if (!cmd->rzwfileP) {
-            printf("\nYou must enter a name for the rzw candidate ");
-            printf("file (-rzwfile filename)\n");
-            printf("Exiting.\n\n");
+            fprintf(stderr, "\nYou must enter a name for the rzw candidate ");
+            fprintf(stderr, "file (-rzwfile filename)\n");
+            fprintf(stderr, "Exiting.\n\n");
             exit(1);
          }
 
@@ -261,11 +261,11 @@ int main(int argc, char **argv)
          while (NULL != ctmp) {
             onoffpairs[i] = strtod(ctmp, NULL);
             if (onoffpairs[i] < 0.0 || onoffpairs[i] > 1.0) {
-               printf("\nonoff pairs must be between 0.0 and 1.0 inclusive.\n\n");
+               fprintf(stderr, "\nonoff pairs must be between 0.0 and 1.0 inclusive.\n\n");
                exit(1);
             }
             if (i >= 1 && onoffpairs[i] < onoffpairs[i - 1]) {
-               printf("\nonoff values must increase from left to right.\n\n");
+               fprintf(stderr, "\nonoff values must increase from left to right.\n\n");
                exit(1);
             }
             if (onoffpairs[i] > 1.0)

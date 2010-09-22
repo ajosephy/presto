@@ -29,13 +29,13 @@ fcomplex *complex_corr_conv(fcomplex * data, fcomplex * kernel,
    /* Set up all our parameters */
 
    if (ffts > 3) {
-      printf("\nIllegal 'ffts' option (%d) in complex_corr_conv().\n", ffts);
-      printf("Exiting.\n\n");
+      fprintf(stderr, "\nIllegal 'ffts' option (%d) in complex_corr_conv().\n", ffts);
+      fprintf(stderr, "Exiting.\n\n");
       exit(1);
    }
    if (type > 3) {
-      printf("\nIllegal 'type' option (%d) in complex_corr_conv().\n", type);
-      printf("Exiting.\n\n");
+      fprintf(stderr, "\nIllegal 'type' option (%d) in complex_corr_conv().\n", type);
+      fprintf(stderr, "Exiting.\n\n");
       exit(1);
    }
    if (type == INPLACE_CONV || type == INPLACE_CORR) {
@@ -109,13 +109,13 @@ float *real_corr_conv(float *data, float *kernel, int numdata,
    /* Set up all our parameters */
 
    if (ffts > 3) {
-      printf("\nIllegal 'ffts' option (%d) in real_corr_conv().\n", ffts);
-      printf("Exiting\n\n");
+      fprintf(stderr, "\nIllegal 'ffts' option (%d) in real_corr_conv().\n", ffts);
+      fprintf(stderr, "Exiting\n\n");
       exit(1);
    }
    if (type > 3) {
-      printf("\nIllegal 'type' option (%d) in real_corr_conv().\n", ffts);
-      printf("Exiting\n\n");
+      fprintf(stderr, "\nIllegal 'type' option (%d) in real_corr_conv().\n", ffts);
+      fprintf(stderr, "Exiting\n\n");
       exit(1);
    }
    if (type == INPLACE_CONV || type == INPLACE_CORR) {

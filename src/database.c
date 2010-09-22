@@ -74,7 +74,7 @@ void get_psr(int psrnumber, psrparams * psr)
    int ii = psrnumber;
 
    if (ii < 0) {
-      printf("psrnumber < 0 in get_psr().  Exiting.\n\n");
+      fprintf(stderr, "psrnumber < 0 in get_psr().  Exiting.\n\n");
       exit(1);
    }
    strncpy(psr->jname, pulsardata[ii].jname, 13);
@@ -117,7 +117,7 @@ void get_psrparams(psrparams * psr, char *psrname)
    if (pnum >= 0)
       get_psr(pnum, psr);
    else {
-      printf("Could not find the PSR in the database in get_psrparams().\n");
+      fprintf(stderr, "Could not find the PSR in the database in get_psrparams().\n");
       exit(2);
    }
 }

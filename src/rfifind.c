@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
       if (!RAWDATA) {
          /* Split the filename into a rootname and a suffix */
          if (split_root_suffix(cmd->argv[0], &root, &suffix) == 0) {
-            printf("\nThe input filename (%s) must have a suffix, or you must\n"
+            fprintf(stderr, "\nThe input filename (%s) must have a suffix, or you must\n"
                    "    specify the data type!\n\n", cmd->argv[0]);
             exit(1);
          } else {
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
             readinf(&idata, tmpname);
             free(tmpname);
          } else {
-            printf("\nThe input files (%s) must be subbands!  (i.e. *.sub##)\n\n",
+            fprintf(stderr, "\nThe input files (%s) must be subbands!  (i.e. *.sub##)\n\n",
                    cmd->argv[0]);
             exit(1);
          }

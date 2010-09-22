@@ -205,7 +205,7 @@ void realfft(float idata[], long n, int isign)
    fcomplex *data;
 
    if (n % 2) {
-      printf("\nrealfft() arrays lengths must be evenly divisible by 2.\n\n");
+      fprintf(stderr, "\nrealfft() arrays lengths must be evenly divisible by 2.\n\n");
       exit(-1);
    }
    nby2 = n >> 1;

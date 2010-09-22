@@ -285,7 +285,7 @@ int main(int argc, char **argv)
       /* If no file extension or if we don't understand the extension, exit */
 
       if (need_type) {
-         fprintf(stdout, "You must specify a data type for this file.\n\n");
+         fprintf(stderr, "You must specify a data type for this file.\n\n");
          free(short_filenm);
          exit(-1);
       }
@@ -297,8 +297,8 @@ int main(int argc, char **argv)
    if (cmd->index[1] == -1 || cmd->index[1] == 0)
       cmd->index[1] = INT_MAX;
    if (cmd->index[1] < cmd->index[0]) {
-      fprintf(stdout, "\nThe high index must be >= the low index.");
-      fprintf(stdout, "  Exiting.\n\n");
+      fprintf(stderr, "\nThe high index must be >= the low index.");
+      fprintf(stderr, "  Exiting.\n\n");
       exit(-1);
    }
 

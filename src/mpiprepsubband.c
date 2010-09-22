@@ -283,8 +283,8 @@ int main(int argc, char *argv[])
    dms = gen_dvect(local_numdms);
    if (cmd->numdms % (numprocs - 1)) {
       if (myid == 0)
-         printf
-             ("\nThe number of DMs must be divisible by (the number of processors - 1).\n\n");
+         fprintf
+             (stderr, "\nThe number of DMs must be divisible by (the number of processors - 1).\n\n");
       MPI_Finalize();
       exit(1);
    }
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
    datafilenm = (char *) calloc(strlen(outfilenm) + 20, 1);
    if (myid > 0) {
       if (chdir(outpath) == -1) {
-         printf("\nProcess %d cannot chdir() to '%s'.  Exiting.\n\n", myid, outpath);
+         fprintf(stderr, "\nProcess %d cannot chdir() to '%s'.  Exiting.\n\n", myid, outpath);
          MPI_Finalize();
          exit(1);
       }
@@ -341,8 +341,8 @@ int main(int argc, char *argv[])
             char *root, *suffix, *tmpname;
             /* Split the filename into a rootname and a suffix */
             if (split_root_suffix(cmd->argv[0], &root, &suffix) == 0) {
-               printf
-                   ("\nThe input filename (%s) must have a suffix!\n\n",
+               fprintf
+                   (stderr, "\nThe input filename (%s) must have a suffix!\n\n",
                     cmd->argv[0]);
                exit(1);
             } else {
@@ -354,8 +354,8 @@ int main(int argc, char *argv[])
                   free(root);
                   free(suffix);
                } else {
-                  printf
-                      ("\nThe input files (%s) must be subbands!  (i.e. *.sub##)\n\n",
+                  fprintf
+                      (stderr, "\nThe input files (%s) must be subbands!  (i.e. *.sub##)\n\n",
                        cmd->argv[0]);
                   exit(1);
                }
@@ -378,8 +378,8 @@ int main(int argc, char *argv[])
             } else if (!strcmp(idata.telescope, "GMRT")) {
                strcpy(obs, "GM");
             } else {
-               printf("\nYou need to choose a telescope whose data is in\n");
-               printf("$TEMPO/obsys.dat.  Exiting.\n\n");
+               fprintf(stderr, "\nYou need to choose a telescope whose data is in\n");
+               fprintf(stderr, "$TEMPO/obsys.dat.  Exiting.\n\n");
                exit(1);
             }
          }
@@ -453,8 +453,8 @@ int main(int argc, char *argv[])
             } else if (!strcmp(idata.telescope, "GBT")) {
                strcpy(obs, "GB");
             } else {
-               printf("\nYou need to choose a telescope whose data is in\n");
-               printf("$TEMPO/obsys.dat.  Exiting.\n\n");
+               fprintf(stderr, "\nYou need to choose a telescope whose data is in\n");
+               fprintf(stderr, "$TEMPO/obsys.dat.  Exiting.\n\n");
                exit(1);
             }
          }
@@ -639,10 +639,10 @@ int main(int argc, char *argv[])
 
    if (blocklen % cmd->downsamp) {
       if (myid == 0) {
-         printf
-             ("Error:  The downsample factor (%d) must be a factor of the\n",
+         fprintf
+             (stderr, "Error:  The downsample factor (%d) must be a factor of the\n",
               cmd->downsamp);
-         printf("        blocklength (%d).  Exiting.\n\n", blocklen);
+         fprintf(stderr, "        blocklength (%d).  Exiting.\n\n", blocklen);
       }
       MPI_Finalize();
       exit(1);

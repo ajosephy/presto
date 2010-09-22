@@ -24,18 +24,18 @@ int main(int argc, char *argv[])
       sprintf(innm, "%s", argv[1]);
       printf("\nReading data from \"%s\".\n", innm);
       if (NULL == (infile = fopen(innm, "r+b"))) {
-         printf("\nCan't open \"%s\", exiting.\n", innm);
+         fprintf(stderr, "\nCan't open \"%s\", exiting.\n", innm);
          exit(1);
       }
       sprintf(outnm, "%s_swapped", argv[1]);
       printf("Writing data to \"%s\".\n\n", outnm);
       if (NULL == (outfile = fopen(outnm, "w+b"))) {
-         printf("\nCan't open %s, exiting.\n", outnm);
+         fprintf(stderr, "\nCan't open %s, exiting.\n", outnm);
          exit(1);
       }
    } else {
-      printf("\n\nPlease enter a filename for the input data file");
-      printf(" after \"readdata\".\n");
+      fprintf(stderr, "\n\nPlease enter a filename for the input data file");
+      fprintf(stderr, " after \"readdata\".\n");
       exit(1);
    }
 

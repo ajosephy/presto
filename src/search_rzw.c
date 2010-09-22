@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
    /* # of fourier frequencies */
 
    if (nbins < SHORTESTFFT / 2) {
-      printf("\nFFT is too short to use this routine.\n\n");
+      fprintf(stderr, "\nFFT is too short to use this routine.\n\n");
       exit(1);
    }
    chkfileseek(fftfile, 0L, sizeof(char), SEEK_SET);
@@ -168,8 +168,8 @@ int main(int argc, char *argv[])
     */
    corrsize = FFTLENGTH;
    if (mincorrsize > corrsize) {
-      printf("\nYou are asking for too much memory.  Specify\n");
-      printf("  fewer z values to search.  Exiting.\n\n");
+      fprintf(stderr, "\nYou are asking for too much memory.  Specify\n");
+      fprintf(stderr, "  fewer z values to search.  Exiting.\n\n");
       exit(1);
    }
 
@@ -193,8 +193,8 @@ int main(int argc, char *argv[])
    if (cmd->lobin > 0) {
       nph = 1.0;
       if ((unsigned long) cmd->lobin > nbins - 1) {
-         printf("\n'lobin' is greater than the total number of\n");
-         printf("   frequencies in the data set.  Exiting.\n\n");
+         fprintf(stderr, "\n'lobin' is greater than the total number of\n");
+         fprintf(stderr, "   frequencies in the data set.  Exiting.\n\n");
          exit(1);
       }
    }
@@ -206,16 +206,16 @@ int main(int argc, char *argv[])
       if (cmd->rlo < cmd->lobin)
          cmd->rlo = cmd->lobin;
       if ((unsigned long) cmd->rlo > nbins - 1) {
-         printf("\nLow frequency to search 'flo' is greater than\n");
-         printf("   the highest available frequency.  Exiting.\n\n");
+         fprintf(stderr, "\nLow frequency to search 'flo' is greater than\n");
+         fprintf(stderr, "   the highest available frequency.  Exiting.\n\n");
          exit(1);
       }
    } else {
       if (cmd->rlo < cmd->lobin)
          cmd->rlo = cmd->lobin;
       if ((unsigned long) cmd->rlo > nbins - 1) {
-         printf("\nLow frequency to search 'rlo' is greater than\n");
-         printf("   the available number of points.  Exiting.\n\n");
+         fprintf(stderr, "\nLow frequency to search 'rlo' is greater than\n");
+         fprintf(stderr, "   the available number of points.  Exiting.\n\n");
          exit(1);
       }
    }
@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
       if (highestbin > nbins - 1)
          highestbin = nbins - 1;
       if (highestbin < (unsigned long) cmd->rlo) {
-         printf("\nHigh frequency to search 'fhi' is less than\n");
-         printf("   the lowest frequency to search 'flo'.  Exiting.\n\n");
+         fprintf(stderr, "\nHigh frequency to search 'fhi' is less than\n");
+         fprintf(stderr, "   the lowest frequency to search 'flo'.  Exiting.\n\n");
          exit(1);
       }
    } else if (cmd->rhiP) {
@@ -234,8 +234,8 @@ int main(int argc, char *argv[])
       if (highestbin > nbins - 1)
          highestbin = nbins - 1;
       if (highestbin < (unsigned long) cmd->rlo) {
-         printf("\nHigh frequency to search 'rhi' is less than\n");
-         printf("   the lowest frequency to search 'rlo'.  Exiting.\n\n");
+         fprintf(stderr, "\nHigh frequency to search 'rhi' is less than\n");
+         fprintf(stderr, "   the lowest frequency to search 'rlo'.  Exiting.\n\n");
          exit(1);
       }
    }
