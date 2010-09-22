@@ -1009,8 +1009,10 @@ void prepfold_plot(prepfoldinfo * search, plotflags * flags, int xwin, float *pp
 
             cpgsch(0.8);
             ftmparr1 = gen_fvect(search->numperiods);
-            for (ii = 0; ii < search->numperiods; ii++)
+            for (ii = 0; ii < search->numperiods; ii++) {
                ftmparr1[ii] = (search->periods[ii] - pfold) * 1000.0;
+               printf("%.8f: %.8f\n", search->periods[ii], periodchi[ii]); /*DEBUG*/
+            }
             find_min_max_arr(search->numperiods, periodchi, &min, &max);
             if (search->nsub > 1) {
                cpgsvp(0.74, 0.94, 0.41, 0.51);
