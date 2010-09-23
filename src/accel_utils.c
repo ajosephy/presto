@@ -1250,7 +1250,7 @@ void create_accelobs(accelobs * obs, infodata * idata, Cmdline * cmd, int usemma
          obs->mmap_file = open(cmd->argv[0], O_RDONLY);
          if (obs->mmap_file == -1) {
             perror("\nError in open() in accel_utils.c");
-            printf("\n");
+            fprintf(stderr, "\n");
             exit(-1);
          }
          obs->fft = (fcomplex *) mmap(0, sizeof(fcomplex) * obs->numbins, PROT_READ,
@@ -1300,15 +1300,15 @@ void create_accelobs(accelobs * obs, infodata * idata, Cmdline * cmd, int usemma
    if (obs->lobin > 0) {
       obs->nph = 0.0;
       if (cmd->lobin > obs->numbins - 1) {
-         printf("\n'lobin' is greater than the total number of\n");
-         printf("   frequencies in the data set.  Exiting.\n\n");
+         fprintf(stderr, "\n'lobin' is greater than the total number of\n");
+         fprintf(stderr, "   frequencies in the data set.  Exiting.\n\n");
          exit(1);
       }
    }
    if (cmd->numharm != 1 &&
        cmd->numharm != 2 &&
        cmd->numharm != 4 && cmd->numharm != 8 && cmd->numharm != 16) {
-      printf("\n'numharm' = %d must be a power-of-two!  Exiting\n\n", cmd->numharm);
+      fprintf(stderr, "\n'numharm' = %d must be a power-of-two!  Exiting\n\n", cmd->numharm);
       exit(1);
    }
    obs->numharmstages = twon_to_index(cmd->numharm) + 1;
@@ -1322,8 +1322,8 @@ void create_accelobs(accelobs * obs, infodata * idata, Cmdline * cmd, int usemma
       if (obs->rlo < obs->lobin)
          obs->rlo = obs->lobin;
       if (obs->rlo > obs->numbins - 1) {
-         printf("\nLow frequency to search 'flo' is greater than\n");
-         printf("   the highest available frequency.  Exiting.\n\n");
+         fprintf(stderr, "\nLow frequency to search 'flo' is greater than\n");
+         fprintf(stderr, "   the highest available frequency.  Exiting.\n\n");
          exit(1);
       }
    } else {
@@ -1334,8 +1334,8 @@ void create_accelobs(accelobs * obs, infodata * idata, Cmdline * cmd, int usemma
       if (obs->rlo < obs->lobin)
          obs->rlo = obs->lobin;
       if (obs->rlo > obs->numbins - 1) {
-         printf("\nLow frequency to search 'rlo' is greater than\n");
-         printf("   the available number of points.  Exiting.\n\n");
+         fprintf(stderr, "\nLow frequency to search 'rlo' is greater than\n");
+         fprintf(stderr, "   the available number of points.  Exiting.\n\n");
          exit(1);
       }
    }
@@ -1346,8 +1346,8 @@ void create_accelobs(accelobs * obs, infodata * idata, Cmdline * cmd, int usemma
          obs->highestbin = obs->numbins - 1;
       obs->rhi = obs->highestbin;
       if (obs->highestbin < obs->rlo) {
-         printf("\nHigh frequency to search 'fhi' is less than\n");
-         printf("   the lowest frequency to search 'flo'.  Exiting.\n\n");
+         fprintf(stderr, "\nHigh frequency to search 'fhi' is less than\n");
+         fprintf(stderr, "   the lowest frequency to search 'flo'.  Exiting.\n\n");
          exit(1);
       }
    } else if (cmd->rhiP) {
@@ -1356,8 +1356,8 @@ void create_accelobs(accelobs * obs, infodata * idata, Cmdline * cmd, int usemma
          obs->highestbin = obs->numbins - 1;
       obs->rhi = obs->highestbin;
       if (obs->highestbin < obs->rlo) {
-         printf("\nHigh frequency to search 'rhi' is less than\n");
-         printf("   the lowest frequency to search 'rlo'.  Exiting.\n\n");
+         fprintf(stderr, "\nHigh frequency to search 'rhi' is less than\n");
+         fprintf(stderr, "   the lowest frequency to search 'rlo'.  Exiting.\n\n");
          exit(1);
       }
    }

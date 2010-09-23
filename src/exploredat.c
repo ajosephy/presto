@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
       rt = fstat(mmap_file, &buf);
       if (rt == -1) {
          perror("\nError in fstat() in exploredat.c");
-         printf("\n");
+         fprintf(stderr, "\n");
          exit(-1);
       }
       Ndat = buf.st_size / sizeof(float);

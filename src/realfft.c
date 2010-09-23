@@ -94,12 +94,12 @@ int main(int argc, char *argv[])
             new_hassuffix = split_root_suffix(filenm, &root, &suffix);
             if (new_hassuffix && hassuffix) {
                if (strcmp(datsuffix, suffix)) {
-                  printf("\nAll input files must have the same suffix!\n\n");
+                  fprintf(stderr, "\nAll input files must have the same suffix!\n\n");
                   exit(1);
                }
             }
             if (strcmp(datdir, dir)) {
-               printf("\nAll input files must be in the same directory!\n\n");
+               fprintf(stderr, "\nAll input files must be in the same directory!\n\n");
                exit(1);
             }
             if (new_hassuffix)
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
    if (cmd->inverseP)
       isign = 1;
    if (cmd->diskfftP && cmd->memfftP) {
-      printf("\nYou cannot take both an in- and out-of-core FFT!\n\n");
+      fprintf(stderr, "\nYou cannot take both an in- and out-of-core FFT!\n\n");
       exit(1);
    }
 
@@ -157,15 +157,15 @@ int main(int argc, char *argv[])
    numdata = datfile->length / sizeof(float);
    if (isign == -1) {
       if (datfile->length % sizeof(float)) {
-         printf("\nInput file does not contain the correct number of\n");
-         printf("   bytes for it to be floating point data!\n\n");
+         fprintf(stderr, "\nInput file does not contain the correct number of\n");
+         fprintf(stderr, "   bytes for it to be floating point data!\n\n");
          exit(1);
       }
       printf("\nData OK.  There are %lld floats.\n\n", numdata);
    } else {
       if (datfile->length % sizeof(fcomplex)) {
-         printf("\nInput file does not contain the correct number of\n");
-         printf("   bytes for it to be single precision complex data!\n\n");
+         fprintf(stderr, "\nInput file does not contain the correct number of\n");
+         fprintf(stderr, "   bytes for it to be single precision complex data!\n\n");
          exit(1);
       }
       printf("\nData OK.  There are %lld complex points.\n\n", numdata / 2);
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
             sprintf(cmd, "cp %s %s.bak", datfile->filenames[ii], root);
             if ((status = (system(cmd))) == -1 || status == 127) {
                perror("\nSystem call (cp) failed");
-               printf("\n");
+               fprintf(stderr, "\n");
                exit(1);
             }
             if (suf)

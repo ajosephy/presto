@@ -174,8 +174,8 @@ int check_to_zap(double candbin, double *lobins, double *hibins, int numzap)
    static int index = 0;
 
    if (numzap < 2) {
-      printf("\n\n'numzap' = %d must be >= 2 in check_to_zap().", numzap);
-      printf("  Exiting.\n\n");
+      fprintf(stderr, "\n\n'numzap' = %d must be >= 2 in check_to_zap().", numzap);
+      fprintf(stderr, "  Exiting.\n\n");
       exit(1);
    }
 

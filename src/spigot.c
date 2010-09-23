@@ -732,7 +732,7 @@ int skip_to_SPIGOT_rec(FILE * infiles[], int numfiles, int rec)
       }
 
    } else {
-      printf("\n rec = %d out of range in skip_to_SPIGOT_rec()\n", rec);
+      fprintf(stderr, "\n rec = %d out of range in skip_to_SPIGOT_rec()\n", rec);
       exit(1);
    }
    return rec;
@@ -841,8 +841,8 @@ int read_SPIGOT_rawblock(FILE * infiles[], int numfiles,
             return read_SPIGOT_rawblock(infiles, numfiles, data, padding, ifs);
          }
       } else {
-         printf("\nProblem reading record from SPIGOT data file:\n");
-         printf("   currentfile = %d, currentblock = %d.  Exiting.\n",
+         fprintf(stderr, "\nProblem reading record from SPIGOT data file:\n");
+         fprintf(stderr, "   currentfile = %d, currentblock = %d.  Exiting.\n",
                 currentfile, currentblock);
          exit(1);
       }
@@ -905,7 +905,7 @@ int read_SPIGOT(FILE * infiles[], int numfiles, float *data,
    *nummasked = 0;
    if (firsttime) {
       if (numpts % ptsperblk_st) {
-         printf("numpts must be a multiple of %d in read_SPIGOT()!\n", ptsperblk_st);
+         fprintf(stderr, "numpts must be a multiple of %d in read_SPIGOT()!\n", ptsperblk_st);
          exit(1);
       } else
          numblocks = numpts / ptsperblk_st;
@@ -987,7 +987,7 @@ void get_SPIGOT_channel(int channum, float chandat[],
    int ii, jj, ptsperchan;
 
    if (channum > numchan_st * numifs_st || channum < 0) {
-      printf("\nchannum = %d is out of range in get_SPIGOT_channel()!\n\n", channum);
+      fprintf(stderr, "\nchannum = %d is out of range in get_SPIGOT_channel()!\n\n", channum);
       exit(1);
    }
    ptsperchan = ptsperblk_st * numblocks;

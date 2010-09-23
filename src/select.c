@@ -49,8 +49,8 @@ void hpselect(unsigned long m, unsigned long n, float arr[], powindex heap[])
    powindex tempzz;
 
    if (m > n / 2 || m < 1) {
-      printf("Probable misuse of hpselect.\n");
-      printf("Number to select is out of range.  Exiting.\n");
+      fprintf(stderr, "Probable misuse of hpselect.\n");
+      fprintf(stderr, "Number to select is out of range.  Exiting.\n");
       exit(1);
    }
    for (i = 1; i <= m; i++) {

@@ -171,7 +171,7 @@ int read_PSRFITS_files(char **filenames, int numfiles, struct spectra_info *s)
     char ctmp[80], comment[120];
     
     if (numfiles > MAXPFITSFILES) {
-        printf("Error!: There are more than %d input files!\n", MAXPFITSFILES);
+        fprintf(stderr, "Error!: There are more than %d input files!\n", MAXPFITSFILES);
         exit(1);
     }
     s->num_files = numfiles;
@@ -303,7 +303,7 @@ int read_PSRFITS_files(char **filenames, int numfiles, struct spectra_info *s)
         // Compute the starting spectra from the times
         MJDf = s->start_MJD[ii] - s->start_MJD[0];
         if (MJDf < 0.0) {
-            printf("Error!: File %d seems to be from before file 0!\n", ii); 
+            fprintf(stderr, "Error!: File %d seems to be from before file 0!\n", ii); 
             exit(1);
         }
         s->start_spec[ii] = (long long)(MJDf * SECPERDAY / s->dt + 0.5);
@@ -785,7 +785,7 @@ int skip_to_PSRFITS_samp(long long samplenum)
            samplenum > S.start_spec[cur_file])
         cur_file++;
     if (cur_file == S.num_files) {
-        printf("Error!:  Sample %lld does not exist in the input files!\n", 
+        fprintf(stderr, "Error!:  Sample %lld does not exist in the input files!\n", 
                samplenum);
         exit(1);
     }
@@ -1056,8 +1056,8 @@ int read_PSRFITS_rawblock(unsigned char *data, int *padding)
         }
 
         if (status) {
-            printf("\nProblem reading record from PSRFITS data file:\n");
-            printf("   currentfile = %d, currentsubint = %d.  Exiting.\n",
+            fprintf(stderr, "\nProblem reading record from PSRFITS data file:\n");
+            fprintf(stderr, "   currentfile = %d, currentsubint = %d.  Exiting.\n",
                    cur_file, cur_subint);
             exit(1);
         }
@@ -1177,7 +1177,7 @@ int read_PSRFITS(float *data, int numspec, double *dispdelays, int *padding,
    *nummasked = 0;
    if (firsttime) {
        if (numspec % S.spectra_per_subint) {
-           printf("numspec must be a multiple of %d in read_PSRFITS()!\n", 
+           fprintf(stderr, "numspec must be a multiple of %d in read_PSRFITS()!\n", 
                   S.spectra_per_subint);
            exit(1);
        } else
@@ -1259,7 +1259,7 @@ void get_PSRFITS_channel(int channum, float chandat[],
     int ii, jj, ptsperchan;
     
     if (channum > S.num_channels || channum < 0) {
-        printf("\nchannum = %d is out of range in get_PSRFITS_channel()!\n\n", 
+        fprintf(stderr, "\nchannum = %d is out of range in get_PSRFITS_channel()!\n\n", 
                channum);
         exit(1);
     }

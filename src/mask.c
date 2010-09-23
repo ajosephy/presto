@@ -160,7 +160,7 @@ void calc_avgmedstd(float *arr, int numarr, float fraction,
 
    len = (int) (numarr * fraction + 0.5);
    if (len > numarr || len < 0) {
-      printf("fraction (%g) out-of-bounds in calc_avgmedstd()\n", fraction);
+      fprintf(stderr, "fraction (%g) out-of-bounds in calc_avgmedstd()\n", fraction);
       exit(1);
    }
    start = (numarr - len) / 2;
@@ -188,7 +188,7 @@ int determine_padvals(char *maskfilenm, mask * obsmask, float *padvals[])
    char *statsfilenm, *root, *suffix;
 
    if (split_root_suffix(maskfilenm, &root, &suffix) == 0) {
-      printf("\nThe mask filename (%s) must have a suffix!\n\n", maskfilenm);
+      fprintf(stderr, "\nThe mask filename (%s) must have a suffix!\n\n", maskfilenm);
       exit(1);
    } else {
       /* Determine the stats file name */

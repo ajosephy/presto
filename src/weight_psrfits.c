@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
         // Open the PSRFITS file
         fits_open_file(&infile, argv[ii+2], READWRITE, &status);
         if (status) {
-            printf("  Error!  Cannot open '%s'!\n", argv[ii+2]);
+            fprintf(stderr, "  Error!  Cannot open '%s'!\n", argv[ii+2]);
             exit(1);
         }
 
@@ -88,8 +88,8 @@ int main(int argc, char *argv[]) {
             printf("  Warning!  Cannot find NCHAN in '%s'!\n", argv[ii+2]);
             status = 0;
         } else if (nchan != nchan2) {
-            printf("  Error!  The number of channels in '%s'\n", argv[1]);
-            printf("          and in '%s' do not match!\n", argv[ii+2]);
+            fprintf(stderr, "  Error!  The number of channels in '%s'\n", argv[1]);
+            fprintf(stderr, "          and in '%s' do not match!\n", argv[ii+2]);
             exit(1);
         }
         fits_read_key(infile, TINT, "NPOL", &npol, comment, &status); \
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
         // How many rows are there?
         fits_get_num_rows(infile, &nrows, &status);
         if (status) {
-            printf("  Error!  Cannot read the number of rows in '%s'!\n", 
+            fprintf(stderr, "  Error!  Cannot read the number of rows in '%s'!\n", 
                    argv[ii+2]);
             exit(1);
         }

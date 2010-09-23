@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
    if (!RAWDATA) {
       /* Split the filename into a rootname and a suffix */
       if (split_root_suffix(cmd->argv[0], &root, &suffix) == 0) {
-         printf("\nThe input filename (%s) must have a suffix!\n\n", cmd->argv[0]);
+         fprintf(stderr, "\nThe input filename (%s) must have a suffix!\n\n", cmd->argv[0]); 
          exit(1);
       } else {
          if (strcmp(suffix, "sdat") == 0) {
@@ -275,8 +275,8 @@ int main(int argc, char *argv[])
          } else if (!strcmp(idata.telescope, "GBT")) {
             strcpy(obs, "GB");
          } else {
-            printf("\nYou need to choose a telescope whose data is in\n");
-            printf("$TEMPO/obsys.dat.  Exiting.\n\n");
+            fprintf(stderr, "\nYou need to choose a telescope whose data is in\n");
+            fprintf(stderr, "$TEMPO/obsys.dat.  Exiting.\n\n");
             exit(1);
          }
       }
@@ -411,8 +411,8 @@ int main(int argc, char *argv[])
          } else if (!strcmp(idata.telescope, "GMRT")) {
             strcpy(obs, "GM");
          } else {
-            printf("\nYou need to choose a telescope whose data is in\n");
-            printf("$TEMPO/obsys.dat.  Exiting.\n\n");
+            fprintf(stderr, "\nYou need to choose a telescope whose data is in\n");
+            fprintf(stderr, "$TEMPO/obsys.dat.  Exiting.\n\n");
             exit(1);
          }
 
@@ -435,9 +435,9 @@ int main(int argc, char *argv[])
       printf("Downsampling by a factor of %d\n", cmd->downsamp);
       printf("New sample dt = %.10g\n\n", dsdt);
       if (worklen % cmd->downsamp) {
-         printf("Error:  The downsample factor (%d) must be a factor of the\n",
+         fprintf(stderr, "Error:  The downsample factor (%d) must be a factor of the\n",
                 cmd->downsamp);
-         printf("        worklength (%ld).  Exiting.\n\n", worklen);
+         fprintf(stderr, "        worklength (%ld).  Exiting.\n\n", worklen);
          exit(1);
       }
    }
@@ -996,7 +996,7 @@ static int read_shorts(FILE * file, float *data, int numpts, int numchan)
    sdata = (short *) malloc((size_t) (sizeof(short) * (numpts * numchan)));
    if (!sdata) {
       perror("\nError allocating short array in read_shorts()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    numread = chkfread(sdata, sizeof(short),

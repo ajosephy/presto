@@ -62,7 +62,7 @@ void readinf(infodata * data, char *filenm)
       } while (data->onoff[ii - 1] < data->N - 1 && ii < 2 * MAXNUMONOFF);
       data->numonoff = ii / 2;
       if (data->numonoff == MAXNUMONOFF) {
-         printf("Number of onoff pairs (%d) is >= than MAXNUMONOFF (%d).\n",
+         fprintf(stderr, "Number of onoff pairs (%d) is >= than MAXNUMONOFF (%d).\n",
                 data->numonoff, MAXNUMONOFF);
          exit(1);
       }

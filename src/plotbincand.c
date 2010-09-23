@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
    /* Check that candnum is in range */
 
    if ((candnum < 1) || (candnum > ncands)) {
-      printf("\nThe candidate number is out of range.\n\n");
+      fprintf(stderr, "\nThe candidate number is out of range.\n\n");
       exit(1);
    }
    /* The lowest freq present in the FFT file */
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
    if (argc >= 4) {
       lofreq = atoi(argv[3]);
       if ((lofreq < 0) || (lofreq > nbins - 1)) {
-         printf("\n'lofreq' is out of range.\n\n");
+         fprintf(stderr, "\n'lofreq' is out of range.\n\n");
          exit(1);
       }
    }
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
    if (argc >= 5) {
       numsumpow = atoi(argv[4]);
       if (numsumpow < 1) {
-         printf("\nNumber of summed powers must be at least one.\n\n");
+         fprintf(stderr, "\nNumber of summed powers must be at least one.\n\n");
          exit(1);
       }
    }

@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
    slaDjcl(MJD, &year, &month, &day, &fracday, &err);
 
    if (err == -1) {
-      printf("\nTry again.  Bad MJD.\n\n");
+      fprintf(stderr, "\nTry again.  Bad MJD.\n\n");
       exit(1);
    }
    dh = fracday * 24.0;

@@ -58,30 +58,30 @@ int corr_complex(fcomplex * data, int numdata, presto_datainf datainf,
    /* Check entry arguments for validity */
 
    if (numdata <= 0) {
-      printf("\n  'numdata' = %d (out of bounds) in corr_complex().\n\n", numdata);
+      fprintf(stderr, "\n  'numdata' = %d (out of bounds) in corr_complex().\n\n", numdata);
       exit(1);
    }
    if (numkern <= 0 || numkern > MAXREALFFT / 4) {
-      printf("\n  'numkern' = %d (out of bounds) in corr_complex().\n\n", numkern);
+      fprintf(stderr, "\n  'numkern' = %d (out of bounds) in corr_complex().\n\n", numkern);
       exit(1);
    }
    if (numresult <= 0 || numresult > MAXREALFFT / 4) {
-      printf("\n  'numresult' = %d (out of bounds) in corr_complex().\n\n",
+      fprintf(stderr, "\n  'numresult' = %d (out of bounds) in corr_complex().\n\n",
              numresult);
       exit(1);
    }
    if (numbetween < 0 || numbetween > 20000) {
-      printf("\n  'numbetween' = %d (out of bounds) in corr_complex().\n\n",
+      fprintf(stderr, "\n  'numbetween' = %d (out of bounds) in corr_complex().\n\n",
              numbetween);
       exit(1);
    }
    if (numresult % numbetween != 0) {
-      printf("\n  'numresult' = %d must be a multiple of ", numresult);
-      printf("'numbetween' in corr_complex().\n\n");
+      fprintf(stderr, "\n  'numresult' = %d must be a multiple of ", numresult);
+      fprintf(stderr, "'numbetween' in corr_complex().\n\n");
       exit(1);
    }
    if (lobin < 0 || lobin >= numdata) {
-      printf("\n  'lobin' = %d (out of bounds) in corr_complex().\n\n", lobin);
+      fprintf(stderr, "\n  'lobin' = %d (out of bounds) in corr_complex().\n\n", lobin);
       exit(1);
    }
    if ((datainf == SAME || kerninf == SAME) && firsttime) {
@@ -89,8 +89,8 @@ int corr_complex(fcomplex * data, int numdata, presto_datainf datainf,
       printf("  being SAME if this is the 1st time calling the routine.\n\n");
    }
    if (datainf == SAME && kerninf == SAME && lobin == oldlobin) {
-      printf("\n  Doesn't make sense to call corr_complex() with SAME for\n");
-      printf("  both 'datainf' and 'kerninf' if 'lobin' hasn't changed.\n\n");
+      fprintf(stderr, "\n  Doesn't make sense to call corr_complex() with SAME for\n");
+      fprintf(stderr, "  both 'datainf' and 'kerninf' if 'lobin' hasn't changed.\n\n");
       exit(1);
    }
    if (datainf == PREPPED || datainf == FFT || kerninf == PREPPED || kerninf == FFT) {
@@ -101,8 +101,8 @@ int corr_complex(fcomplex * data, int numdata, presto_datainf datainf,
       if ((datainf == PREPPED || datainf == FFT) &&
           (kerninf == PREPPED || kerninf == FFT)) {
          if (numdata != numkern) {
-            printf("\n  'numdata' must equal 'numkern' if the data array and\n");
-            printf("  the kernel are either PREPPED or FFT in corr_complex().\n\n");
+            fprintf(stderr, "\n  'numdata' must equal 'numkern' if the data array and\n");
+            fprintf(stderr, "  the kernel are either PREPPED or FFT in corr_complex().\n\n");
             exit(1);
          }
       }
@@ -115,20 +115,20 @@ int corr_complex(fcomplex * data, int numdata, presto_datainf datainf,
       fftlen = next2_to_n(numresult + 2 * kern_half_width * numbetween);
    }
    if (fftlen > MAXREALFFT / 4) {
-      printf("\n  'fftlen' = %d (out of bounds) in corr_complex().\n\n", fftlen);
+      fprintf(stderr, "\n  'fftlen' = %d (out of bounds) in corr_complex().\n\n", fftlen);
       exit(1);
    }
    if (kerninf == RAW || kerninf == PREPPED) {
       if (2 * kern_half_width * numbetween > numkern) {
-         printf("\n  'numkern = %d (out of bounds in corr_complex().\n", numkern);
-         printf("  If 'kerninf' == RAW or PREPPED, 'numkern' must be >=\n");
-         printf("  to 2 * 'kern_half_width' * 'numbetween'.\n\n");
+         fprintf(stderr, "\n  'numkern = %d (out of bounds in corr_complex().\n", numkern);
+         fprintf(stderr, "  If 'kerninf' == RAW or PREPPED, 'numkern' must be >=\n");
+         fprintf(stderr, "  to 2 * 'kern_half_width' * 'numbetween'.\n\n");
          exit(1);
       }
    } else if (kerninf == SAME) {
       if (lobin != oldlobin || kern_half_width != oldkern_half_width) {
-         printf("\n  When 'kerninf' = SAME, 'lobin' and 'kern_half_width'\n");
-         printf("  must match their previous values in corr_complex().\n\n");
+         fprintf(stderr, "\n  When 'kerninf' = SAME, 'lobin' and 'kern_half_width'\n");
+         fprintf(stderr, "  must match their previous values in corr_complex().\n\n");
          exit(1);
       }
    }
@@ -327,7 +327,7 @@ float *corr_loc_pow(float *powers, int numpowers)
    /* Make sure our powers array is long enough. */
 
    if (numpowers < 2 * kern_half_width) {
-      printf("\n  numpowers = %d (out of bounds) in corr_loc_pow().\n\n", numpowers);
+      fprintf(stderr, "\n  numpowers = %d (out of bounds) in corr_loc_pow().\n\n", numpowers);
       exit(1);
    }
 

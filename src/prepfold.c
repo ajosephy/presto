@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
    if (!RAWDATA) {
       /* Split the filename into a rootname and a suffix */
       if (split_root_suffix(cmd->argv[0], &root, &suffix) == 0) {
-         printf("\nThe input filename (%s) must have a suffix!\n\n", search.filenm);
+         fprintf(stderr, "\nThe input filename (%s) must have a suffix!\n\n", search.filenm);
          exit(1);
       } else {
          if (strcmp(suffix, "sdat") == 0) {
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
             readinf(&idata, tmpname);
             free(tmpname);
          } else {
-            printf("\nThe input files (%s) must be subbands!  (i.e. *.sub##)\n\n",
+            fprintf(stderr, "\nThe input files (%s) must be subbands!  (i.e. *.sub##)\n\n",
                    cmd->argv[0]);
             exit(1);
          }
@@ -237,9 +237,9 @@ int main(int argc, char *argv[])
 
             if (cmd->rzwcandP) {
                if (!cmd->rzwfileP) {
-                  printf("\nYou must enter a name for the rzw candidate ");
-                  printf("file (-rzwfile filename)\n");
-                  printf("Exiting.\n\n");
+                  fprintf(stderr, "\nYou must enter a name for the rzw candidate ");
+                  fprintf(stderr, "file (-rzwfile filename)\n");
+                  fprintf(stderr, "Exiting.\n\n");
                   exit(1);
                } else if (NULL != (cptr = strstr(cmd->rzwfile, "_rzw"))) {
                   ii = (long) (cptr - cmd->rzwfile);
@@ -251,9 +251,9 @@ int main(int argc, char *argv[])
             }
             if (cmd->accelcandP) {
                if (!cmd->accelfileP) {
-                  printf("\nYou must enter a name for the ACCEL candidate ");
-                  printf("file (-accelfile filename)\n");
-                  printf("Exiting.\n\n");
+                  fprintf(stderr, "\nYou must enter a name for the ACCEL candidate ");
+                  fprintf(stderr, "file (-accelfile filename)\n");
+                  fprintf(stderr, "Exiting.\n\n");
                   exit(1);
                } else if (NULL != (cptr = strstr(cmd->accelfile, "_rzw"))) {
                   ii = (long) (cptr - cmd->accelfile);
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
          else if (cmd->fP)
             sprintf(search.candnm, "%.2fHz_Cand", cmd->f);
          else {
-            printf("\nYou must specify candidate parameters (i.e period).\n\n");
+            fprintf(stderr, "\nYou must specify candidate parameters (i.e period).\n\n");
             exit(1);
          }
       }
@@ -685,7 +685,7 @@ int main(int argc, char *argv[])
 
    /* Make sure that the number of subbands evenly divides the number of channels */
    if (numchan % cmd->nsub != 0) {
-       printf("Error:  # of channels (%d) not divisible by # of subbands (%d)!\n", 
+       fprintf(stderr, "Error:  # of channels (%d) not divisible by # of subbands (%d)!\n", 
               numchan, cmd->nsub);
        exit(1);
    }
@@ -745,13 +745,13 @@ int main(int argc, char *argv[])
          psrparams psr;
 
          if (search.bepoch == 0.0) {
-            printf("\nYou cannot fold topocentric data with the pulsar database.\n");
-            printf("Use '-timing' or polycos instead.  Exiting.\n\n");
+            fprintf(stderr, "\nYou cannot fold topocentric data with the pulsar database.\n");
+            fprintf(stderr, "Use '-timing' or polycos instead.  Exiting.\n\n");
             exit(1);
          }
          pnum = get_psr_at_epoch(cmd->psrname, search.bepoch, &psr);
          if (!pnum) {
-            printf("The pulsar is not in the database.  Exiting.\n\n");
+            fprintf(stderr, "The pulsar is not in the database.  Exiting.\n\n");
             exit(1);
          }
          if (psr.orb.p != 0.0) {        /* Checks if the pulsar is in a binary */
@@ -774,8 +774,8 @@ int main(int argc, char *argv[])
       psrparams psr;
 
       if (search.bepoch == 0.0) {
-         printf("\nYou cannot fold topocentric data with a par file.\n");
-         printf("Use '-timing' or polycos instead.  Exiting.\n\n");
+         fprintf(stderr, "\nYou cannot fold topocentric data with a par file.\n");
+         fprintf(stderr, "Use '-timing' or polycos instead.  Exiting.\n\n");
          exit(1);
       }
 
@@ -823,9 +823,9 @@ int main(int argc, char *argv[])
 
       if (cmd->rzwcandP) {
          if (!cmd->rzwfileP) {
-            printf("\nYou must enter a name for the rzw candidate ");
-            printf("file (-rzwfile filename)\n");
-            printf("Exiting.\n\n");
+            fprintf(stderr, "\nYou must enter a name for the rzw candidate ");
+            fprintf(stderr, "file (-rzwfile filename)\n");
+            fprintf(stderr, "Exiting.\n\n");
             exit(1);
          } else if (NULL != (cptr = strstr(cmd->rzwfile, "_rzw"))) {
             ii = (long) (cptr - cmd->rzwfile);
@@ -837,9 +837,9 @@ int main(int argc, char *argv[])
       }
       if (cmd->accelcandP) {
          if (!cmd->accelfileP) {
-            printf("\nYou must enter a name for the ACCEL candidate ");
-            printf("file (-accelfile filename)\n");
-            printf("Exiting.\n\n");
+            fprintf(stderr, "\nYou must enter a name for the ACCEL candidate ");
+            fprintf(stderr, "file (-accelfile filename)\n");
+            fprintf(stderr, "Exiting.\n\n");
             exit(1);
          } else if (NULL != (cptr = strstr(cmd->accelfile, "_rzw"))) {
             ii = (long) (cptr - cmd->accelfile);
@@ -920,7 +920,7 @@ int main(int argc, char *argv[])
 
    if (cmd->pfact != 1.0 || cmd->ffact != 1.0) {
       if (cmd->pfact == 0.0 || cmd->ffact == 0.0) {
-         printf("\nFolding factors (-pfact or -ffact) cannot be 0!  Exiting\n");
+         fprintf(stderr, "\nFolding factors (-pfact or -ffact) cannot be 0!  Exiting\n");
          exit(1);
       }
       if (cmd->pfact != 1.0)

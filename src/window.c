@@ -45,12 +45,12 @@ int main(int argc, char *argv[])
    data = gen_fvect(NPTS);
    numbetween = atoi(argv[2]);
    if ((numbetween < 1) || (numbetween > 128)) {
-      printf("\nNumbetween is out of range.\n\n");
+      fprintf(stderr, "\nNumbetween is out of range.\n\n");
       exit(1);
    }
    width = atoi(argv[3]) * numbetween;
    if ((width < 1) || (width > (NPTS / 2 - 2 * width) / numbetween)) {
-      printf("\nWidth is out of range.\n\n");
+      fprintf(stderr, "\nWidth is out of range.\n\n");
       exit(1);
    }
    sprintf(filenm, "%s.win%d", argv[1], numbetween);

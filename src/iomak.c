@@ -226,7 +226,7 @@ void read_mak_file(char basefilenm[], makedata * mdata)
 
    fscanf(makefile, "%*[^=]= %ld", &mdata->N);
    if (mdata->N <= 0) {
-      printf("\nmdata->N must be > 0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->N must be > 0 in read_mak_file()\n");
       exit(1);
    }
 
@@ -237,7 +237,7 @@ void read_mak_file(char basefilenm[], makedata * mdata)
 
    fscanf(makefile, "%*[^=]= %lf", &mdata->dt);
    if (mdata->dt <= 0) {
-      printf("\nmdata->dt must be > 0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->dt must be > 0 in read_mak_file()\n");
       exit(1);
    }
 
@@ -260,8 +260,8 @@ void read_mak_file(char basefilenm[], makedata * mdata)
       else
          mdata->fwhm = 0.1;
       if (mdata->fwhm <= 0.0 || mdata->fwhm > 0.5) {
-         printf("\nmdata->fwhm must be between 0 and 0.5 in ");
-         printf("read_mak_file()\n");
+         fprintf(stderr, "\nmdata->fwhm must be between 0 and 0.5 in ");
+         fprintf(stderr, "read_mak_file()\n");
          exit(1);
       }
    }
@@ -274,7 +274,7 @@ void read_mak_file(char basefilenm[], makedata * mdata)
 
    fscanf(makefile, "%*[^=]= %lf", &mdata->f);
    if (mdata->f <= 0.0) {
-      printf("\nmdata->f must be > 0.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->f must be > 0.0 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->fd);
@@ -292,34 +292,34 @@ void read_mak_file(char basefilenm[], makedata * mdata)
 
    fscanf(makefile, "%*[^=]= %lf", &mdata->amp);
    if (mdata->amp < 0.0) {
-      printf("\nmdata->amp must be >= 0.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->amp must be >= 0.0 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->phs);
    if (mdata->phs < 0.0 || mdata->phs >= 360) {
-      printf("\nmdata->phs must be 0 <= phs < 360 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->phs must be 0 <= phs < 360 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->dc);
 
    fscanf(makefile, "%*[^=]= %lf", &mdata->orb.p);
    if (mdata->orb.p < 0.0) {
-      printf("\nmdata->orb.p must be >= 0.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->orb.p must be >= 0.0 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->orb.x);
    if (mdata->orb.x < 0.0) {
-      printf("\nmdata->orb.x must be >= 0.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->orb.x must be >= 0.0 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->orb.e);
    if (mdata->orb.e < 0.0 || mdata->orb.e >= 1.0) {
-      printf("\nmdata->e must be 0 <= e < 1.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->e must be 0 <= e < 1.0 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->orb.w);
    if (mdata->orb.w < 0.0 || mdata->orb.w >= 360) {
-      printf("\nmdata->orb.w must be 0 <= w < 360 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->orb.w must be 0 <= w < 360 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->orb.t);
@@ -330,17 +330,17 @@ void read_mak_file(char basefilenm[], makedata * mdata)
 
    fscanf(makefile, "%*[^=]= %lf", &mdata->ampmoda);
    if (mdata->ampmoda < 0.0) {
-      printf("\nmdata->ampmoda must be >= 0.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->ampmoda must be >= 0.0 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->ampmodp);
    if (mdata->ampmodp < 0.0 || mdata->ampmodp >= 360) {
-      printf("\nmdata->ampmodp must be 0 <= phs < 360 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->ampmodp must be 0 <= phs < 360 in read_mak_file()\n");
       exit(1);
    }
    fscanf(makefile, "%*[^=]= %lf", &mdata->ampmodf);
    if (mdata->ampmodf < 0.0) {
-      printf("\nmdata->ampmodf must be >= 0.0 in read_mak_file()\n");
+      fprintf(stderr, "\nmdata->ampmodf must be >= 0.0 in read_mak_file()\n");
       exit(1);
    }
    if (mdata->ampmoda == 0.0 || mdata->ampmodf == 0.0)

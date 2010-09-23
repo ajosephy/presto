@@ -61,8 +61,8 @@ double keplars_eqn(double t, double p_orb, double e, double Eacc)
       fl = E1 - e * sin(E1) - z;
       fh = E2 - e * sin(E2) - z;
       if ((fl > 0.0 && fh > 0.0) || (fl < 0.0 && fh < 0.0)) {
-         printf("Problem with the initial conditions in keplars_eqn().\n");
-         printf("  t = %g  p_orb = %g  e = %g  Eacc = %g\n", t, p_orb, e, Eacc);
+         fprintf(stderr, "Problem with the initial conditions in keplars_eqn().\n");
+         fprintf(stderr, "  t = %g  p_orb = %g  e = %g  Eacc = %g\n", t, p_orb, e, Eacc);
          exit(1);
       }
    }
@@ -204,8 +204,8 @@ double lin_interp_E(double *E, double currenttime, double to, double dt, double 
    double fpart, dtemp;
 
    if (currenttime < to || currenttime > maxt) {
-      printf("\nInput currenttime out-of-bounds in lin_interp_E().\n");
-      printf("Exiting.\n\n");
+      fprintf(stderr, "\nInput currenttime out-of-bounds in lin_interp_E().\n");
+      fprintf(stderr, "Exiting.\n\n");
       exit(1);
    }
    dtemp = (currenttime - to) / dt;

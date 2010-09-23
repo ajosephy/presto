@@ -23,7 +23,7 @@ unsigned long getfilelen(FILE * file, size_t size)
    rt = fstat(filenum, &buf);
    if (rt == -1) {
       perror("\nError in getfilelen()");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(-1);
    }
    return (unsigned long) (buf.st_size / size);
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
          fdata = (float *) malloc(sizeof(float) * ntoas);
          jj = fread(fdata, sizeof(float), ntoas, infile);
          if (jj != ntoas) {
-            printf("\nError reading TOA file.  Only %ld points read.\n\n", jj);
+            fprintf(stderr, "\nError reading TOA file.  Only %ld points read.\n\n", jj);
             exit(-1);
          }
          for (jj = 0; jj < ntoas; jj++)
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
          ddata = (double *) malloc(sizeof(double) * ntoas);
          jj = fread(ddata, sizeof(double), ntoas, infile);
          if (jj != ntoas) {
-            printf("\nError reading TOA file.  Only %ld points read.\n\n", jj);
+            fprintf(stderr, "\nError reading TOA file.  Only %ld points read.\n\n", jj);
             exit(-1);
          }
       }

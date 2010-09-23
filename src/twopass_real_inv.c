@@ -24,21 +24,21 @@ void realfft_scratch_inv(multifile * infile, multifile * scratch, long long nn)
    /* n2 >= n1 */
 
    if (nn % 4 != 0) {
-      printf("\nLength of FFT in twopassfft_real_inv()\n");
-      printf("   must be divisible by 4.\n\n");
+      fprintf(stderr, "\nLength of FFT in twopassfft_real_inv()\n");
+      fprintf(stderr, "   must be divisible by 4.\n\n");
       exit(1);
    }
    n2 = good_factor(nn / 4) * 2;
    if (n2 == 0) {
-      printf("\nLength of FFT in twopassfft_real_inv()\n");
-      printf("   must be factorable\n\n");
+      fprintf(stderr, "\nLength of FFT in twopassfft_real_inv()\n");
+      fprintf(stderr, "   must be factorable\n\n");
       exit(1);
    }
    n1 = nn / (2 * n2);
    bb = find_blocksize(n1, n2);
    if (bb == 0 || bb % 2 || n1 % 2 || n2 % 2) {
-      printf("\nCan't factor the FFT length in twopassfft_real_inv()\n");
-      printf("   into useful sizes.\n\n");
+      fprintf(stderr, "\nCan't factor the FFT length in twopassfft_real_inv()\n");
+      fprintf(stderr, "   into useful sizes.\n\n");
       exit(1);
    }
 

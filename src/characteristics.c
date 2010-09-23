@@ -209,11 +209,11 @@ void calc_props(rderivs data, double r, double z, double w, fourierprops * resul
 
    /* Protect against division-by-zero */
    if (fabs(data.pow) < DBLCORRECT) {
-      printf("\n data.pow = %f (out-of-bounds) in calc_props().\n\n", data.pow);
+      fprintf(stderr, "\n data.pow = %f (out-of-bounds) in calc_props().\n\n", data.pow);
       exit(-1);
    }
    if (data.locpow < DBLCORRECT) {
-      printf("\n data.locpow = %f (out-of-bounds) in calc_props().\n\n",
+      fprintf(stderr, "\n data.locpow = %f (out-of-bounds) in calc_props().\n\n",
              data.locpow);
       exit(-1);
    }
@@ -277,11 +277,11 @@ void calc_binprops(fourierprops * props, double T, int lowbin,
   /*   'result' is the returned binaryprops structure.            */
 {
    if (T <= 0.0) {
-      printf("\n T = %f (out-of-bounds) in calc_binprops().\n\n", T);
+      fprintf(stderr, "\n T = %f (out-of-bounds) in calc_binprops().\n\n", T);
       exit(-1);
    }
    if (nfftbins <= 0) {
-      printf("\n nfftbins = %d (out-of-bounds) in calc_binprops().\n\n", nfftbins);
+      fprintf(stderr, "\n nfftbins = %d (out-of-bounds) in calc_binprops().\n\n", nfftbins);
       exit(-1);
    }
    /* Mini-FFT Raw power */
@@ -358,7 +358,7 @@ void calc_rzwerrs(fourierprops * props, double T, rzwerrs * result)
    double tmp, T2, T3, r2, r4, z2, sr2, sz2;
 
    if (T <= 0.0) {
-      printf("\n T = %f (out-of-bounds) in calc_rzwerrs().\n\n", T);
+      fprintf(stderr, "\n T = %f (out-of-bounds) in calc_rzwerrs().\n\n", T);
       exit(-1);
    }
    /* prep some useful values */
@@ -483,9 +483,9 @@ double candidate_sigma(double power, int numsum, double numtrials)
       /* Determine the basic probability */
       cdfgam(&which, &p, &q, &x, &shape, &scale, &status, &bound);
       if (status) {
-         printf("\nError in cdfgam() (candidate_sigma()):\n");
-         printf("   status = %d, bound = %g\n", status, bound);
-         printf("   p = %g, q = %g, x = %g, shape = %g, scale = %g\n\n",
+         fprintf(stderr, "\nError in cdfgam() (candidate_sigma()):\n");
+         fprintf(stderr, "   status = %d, bound = %g\n", status, bound);
+         fprintf(stderr, "   p = %g, q = %g, x = %g, shape = %g, scale = %g\n\n",
                 p, q, x, shape, scale);
          exit(1);
       }
@@ -505,9 +505,9 @@ double candidate_sigma(double power, int numsum, double numtrials)
          } else if (status == -3) {
             x = 38.5;
          } else {
-            printf("\nError in cdfnor() (candidate_sigma()):\n");
-            printf("   status = %d, bound = %g\n", status, bound);
-            printf("   p = %g, q = %g, x = %g, mean = %g, sd = %g\n\n",
+            fprintf(stderr, "\nError in cdfnor() (candidate_sigma()):\n");
+            fprintf(stderr, "   status = %d, bound = %g\n", status, bound);
+            fprintf(stderr, "   p = %g, q = %g, x = %g, mean = %g, sd = %g\n\n",
                    p, q, x, mean, sd);
             exit(1);
          }
@@ -532,9 +532,9 @@ double power_for_sigma(double sigma, int numsum, double numtrials)
    x = sigma;
    cdfnor(&which, &p, &q, &x, &mean, &sd, &status, &bound);
    if (status) {
-      printf("\nError in cdfnor() (power_for_sigma()):\n");
-      printf("   cdfstatus = %d, bound = %g\n\n", status, bound);
-      printf("   p = %g, q = %g, x = %g, mean = %g, sd = %g\n\n", p, q, x, mean, sd);
+      fprintf(stderr, "\nError in cdfnor() (power_for_sigma()):\n");
+      fprintf(stderr, "   cdfstatus = %d, bound = %g\n\n", status, bound);
+      fprintf(stderr, "   p = %g, q = %g, x = %g, mean = %g, sd = %g\n\n", p, q, x, mean, sd);
       exit(1);
    }
    q = q / numtrials;
@@ -544,9 +544,9 @@ double power_for_sigma(double sigma, int numsum, double numtrials)
    status = 0;
    cdfchi(&which, &p, &q, &x, &df, &status, &bound);
    if (status) {
-      printf("\nError in cdfchi() (power_for_sigma()):\n");
-      printf("   status = %d, bound = %g\n", status, bound);
-      printf("   p = %g, q = %g, x = %g, df = %g, scale = %g\n\n",
+      fprintf(stderr, "\nError in cdfchi() (power_for_sigma()):\n");
+      fprintf(stderr, "   status = %d, bound = %g\n", status, bound);
+      fprintf(stderr, "   p = %g, q = %g, x = %g, df = %g, scale = %g\n\n",
              p, q, x, df, scale);
       exit(1);
    }

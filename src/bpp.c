@@ -295,7 +295,7 @@ void calc_BPP_chans(BPP_SEARCH_HEADER * hdr)
    nchans = (hdr->mb_end_address / 2 - hdr->mb_start_address / 2 + 1) *
        (hdr->mb_end_board - hdr->mb_start_board + 1) * 4;
    if (nchans > 2 * MAXNUMCHAN) {
-      printf("Error:  nchans (%d) > 2*MAXNUMCHAN (%d) in bpp_calc_chans()\n\n",
+      fprintf(stderr, "Error:  nchans (%d) > 2*MAXNUMCHAN (%d) in bpp_calc_chans()\n\n",
              nchans, 2 * MAXNUMCHAN);
       exit(1);
    } else if (nchans == 2 * MAXNUMCHAN) {
@@ -319,7 +319,7 @@ void calc_BPP_chans(BPP_SEARCH_HEADER * hdr)
             }
          }
          if (logical_board == -1) {
-            printf("calc_BPP_chans() - logical_board not found");
+            fprintf(stderr, "calc_BPP_chans() - logical_board not found");
             exit(1);
          }
          /* Assumes cabling so that LO0 feeds MF0,1 which feeds leftmost CB! */
@@ -699,7 +699,7 @@ int skip_to_BPP_rec(FILE * infiles[], int numfiles, int rec)
       }
 
    } else {
-      printf("\n rec = %d out of range in skip_to_BPP_rec()\n", rec);
+      fprintf(stderr, "\n rec = %d out of range in skip_to_BPP_rec()\n", rec);
       exit(1);
    }
    return rec;
@@ -868,8 +868,8 @@ int read_BPP_rawblock(FILE * infiles[], int numfiles,
             }
          }
       } else {
-         printf("\nProblem reading record from BPP data file:\n");
-         printf("   currentfile = %d, currentblock = %d.  Exiting.\n",
+         fprintf(stderr, "\nProblem reading record from BPP data file:\n");
+         fprintf(stderr, "   currentfile = %d, currentblock = %d.  Exiting.\n",
                 currentfile, currentblock);
          exit(1);
       }
@@ -937,7 +937,7 @@ int read_BPP(FILE * infiles[], int numfiles, float *data,
    *nummasked = 0;
    if (firsttime) {
       if (numpts % ptsperblk_st) {
-         printf("numpts must be a multiple of %d in read_BPP()!\n", ptsperblk_st);
+         fprintf(stderr, "numpts must be a multiple of %d in read_BPP()!\n", ptsperblk_st);
          exit(1);
       } else
          numblocks = numpts / ptsperblk_st;
@@ -1038,7 +1038,7 @@ void get_BPP_channel(int channum, float chandat[],
    int ii, nibble;
 
    if (channum > numchan_st * numifs_st || channum < 0) {
-      printf("\nchannum = %d is out of range in get_BPP_channel()!\n\n", channum);
+      fprintf(stderr, "\nchannum = %d is out of range in get_BPP_channel()!\n\n", channum);
       exit(1);
    }
    if (numifs_st == 2) {

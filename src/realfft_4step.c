@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
       sprintf(command, "rm -f %s\n", scratchfilenm);
       if ((status = (system(command))) == -1 || status == 127) {
          perror("\nSystem call (rm) failed");
-         printf("\n");
+         fprintf(stderr, "\n");
          exit(1);
       }
       printf("Finished.\n\n");
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
    sprintf(command, "mv %s %s\n", datafilenm, resultfilenm);
    if ((status = (system(command))) == -1 || status == 127) {
       perror("\nSystem call (mv) failed");
-      printf("\n");
+      fprintf(stderr, "\n");
       exit(1);
    }
    fclose(datafile);

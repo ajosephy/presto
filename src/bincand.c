@@ -130,14 +130,14 @@ int main(int argc, char *argv[])
    if (cmd->psrnameP) {
       pnum = get_psr_at_epoch(cmd->psrname, epoch, &psr);
       if (!pnum) {
-         printf("The pulsar '%s' is not in the database.  Exiting.\n\n",
+         fprintf(stderr, "The pulsar '%s' is not in the database.  Exiting.\n\n",
                 cmd->psrname);
          exit(1);
       }
       if (psr.orb.p != 0.0) {
          trialorb = psr.orb;
       } else {
-         printf("The pulsar '%s' is not in a binary.  Exiting.\n\n", cmd->psrname);
+         fprintf(stderr, "The pulsar '%s' is not in a binary.  Exiting.\n\n", cmd->psrname);
          exit(1);
       }
       ppsr = psr.p;
@@ -262,9 +262,9 @@ int main(int argc, char *argv[])
       binaryprops binprops;
 
       if (!cmd->candfileP) {
-         printf("\nYou must enter a name for the bin candidate ");
-         printf("file (-candfile filename)\n");
-         printf("Exiting.\n\n");
+         fprintf(stderr, "\nYou must enter a name for the bin candidate ");
+         fprintf(stderr, "file (-candfile filename)\n");
+         fprintf(stderr, "Exiting.\n\n");
          exit(1);
       }
 
@@ -344,9 +344,9 @@ int main(int argc, char *argv[])
       if (!cmd->usrP ||
           (cmd->usrP &&
            (!cmd->pbP || !cmd->asinicP || !cmd->eP || !cmd->ToP || !cmd->wP))) {
-         printf("\nIf you do not specify a pulsar, a binary candidate, \n");
-         printf("of a makefile, you _must_ specify '-usr' and all of the\n");
-         printf("candidate properties on the command line.  Exiting.\n\n");
+         fprintf(stderr, "\nIf you do not specify a pulsar, a binary candidate, \n");
+         fprintf(stderr, "of a makefile, you _must_ specify '-usr' and all of the\n");
+         fprintf(stderr, "candidate properties on the command line.  Exiting.\n\n");
          exit(1);
       } else {
          trialorb.p = cmd->pb;
@@ -367,9 +367,9 @@ int main(int argc, char *argv[])
          plo = T / rhi;
          phi = T / rlo;
       } else {
-         printf("\nYou must specify limits on the pulsar period to search.\n");
-         printf("You can do this using the '-rlo' and '-rhi' or  '-plo' and\n");
-         printf("'-phi' flags.  Exiting.\n\n");
+         fprintf(stderr, "\nYou must specify limits on the pulsar period to search.\n");
+         fprintf(stderr, "You can do this using the '-rlo' and '-rhi' or  '-plo' and\n");
+         fprintf(stderr, "'-phi' flags.  Exiting.\n\n");
          exit(1);
       }
       ppsr = 0.5 * (plo + phi);

@@ -647,7 +647,7 @@ int skip_to_WAPP_rec(FILE * infiles[], int numfiles, int rec)
       }
 
    } else {
-      printf("\n rec = %d out of range in skip_to_WAPP_rec()\n", rec);
+      fprintf(stderr, "\n rec = %d out of range in skip_to_WAPP_rec()\n", rec);
       exit(1);
    }
    return rec;
@@ -822,8 +822,8 @@ int read_WAPP_rawblock(FILE * infiles[], int numfiles,
             return read_WAPP_rawblock(infiles, numfiles, data, padding, ifs);
          }
       } else {
-         printf("\nProblem reading record from WAPP data file:\n");
-         printf("   currentfile = %d, currentblock = %d.  Exiting.\n",
+         fprintf(stderr, "\nProblem reading record from WAPP data file:\n");
+         fprintf(stderr, "   currentfile = %d, currentblock = %d.  Exiting.\n",
                 currentfile, currentblock);
          exit(1);
       }
@@ -886,7 +886,7 @@ int read_WAPP(FILE * infiles[], int numfiles, float *data,
    *nummasked = 0;
    if (firsttime) {
       if (numpts % ptsperblk_st) {
-         printf("numpts must be a multiple of %d in read_WAPP()!\n", ptsperblk_st);
+         fprintf(stderr, "numpts must be a multiple of %d in read_WAPP()!\n", ptsperblk_st);
          exit(1);
       } else
          numblocks = numpts / ptsperblk_st;
@@ -968,7 +968,7 @@ void get_WAPP_channel(int channum, float chandat[],
    int ii, jj, ptsperchan;
 
    if (channum > numchan_st * numifs_st || channum < 0) {
-      printf("\nchannum = %d is out of range in get_WAPP_channel()!\n\n", channum);
+      fprintf(stderr, "\nchannum = %d is out of range in get_WAPP_channel()!\n\n", channum);
       exit(1);
    }
    ptsperchan = ptsperblk_st * numblocks;

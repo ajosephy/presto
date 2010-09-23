@@ -16,8 +16,8 @@ fcomplex *read_fcomplex_file(FILE * file, int firstpt, int numpts)
    fcomplex *result, *fcptr = NULL, zeros = { 0.0, 0.0 };
 
    if (numpts < 0) {
-      printf("\n\n numpts = %d (out-of-bounds) in read_fcomplex_file().", numpts);
-      printf("  Exiting.\n\n");
+      fprintf(stderr, "\n\n numpts = %d (out-of-bounds) in read_fcomplex_file().", numpts);
+      fprintf(stderr, "  Exiting.\n\n");
       exit(1);
    }
 
@@ -62,8 +62,8 @@ float *read_float_file(FILE * file, int firstpt, int numpts)
    float *result, *fptr = NULL;
 
    if (numpts < 0) {
-      printf("\n\n numpts = %d (out-of-bounds) in read_float_file().", numpts);
-      printf("  Exiting.\n\n");
+      fprintf(stderr, "\n\n numpts = %d (out-of-bounds) in read_float_file().", numpts);
+      fprintf(stderr, "  Exiting.\n\n");
       exit(1);
    }
 

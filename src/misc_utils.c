@@ -78,8 +78,8 @@ void split_path_file(char *input, char **path, char **file)
    if (sptr == NULL) {
       getcwd(stmp, 200);
       if (stmp == NULL) {
-         printf("\nCurrent directory name is too long.\n");
-         printf("Exiting\n\n");
+         fprintf(stderr, "\nCurrent directory name is too long.\n");
+         fprintf(stderr, "Exiting\n\n");
          exit(1);
       }
       pathlen = strlen(stmp);
@@ -249,8 +249,8 @@ void rotate_1d(float *data, long numbins, long bins_to_left)
    float *tmp;
 
    if (bins_to_left < 0 || bins_to_left >= numbins) {
-      printf("\nNumber of bins to rotate array in rotate_1d is\n");
-      printf("\nout of bounds.  Tried to rotate %ld bins.  Exiting.\n",
+      fprintf(stderr, "\nNumber of bins to rotate array in rotate_1d is\n");
+      fprintf(stderr, "\nout of bounds.  Tried to rotate %ld bins.  Exiting.\n",
              bins_to_left);
       exit(1);
    }
@@ -270,8 +270,8 @@ void drotate_1d(double *data, long numbins, long bins_to_left)
    double *tmp;
 
    if (bins_to_left < 0 || bins_to_left >= numbins) {
-      printf("\nNumber of bins to rotate array in rotate_1d is\n");
-      printf("\nout of bounds.  Tried to rotate %ld bins.  Exiting.\n",
+      fprintf(stderr, "\nNumber of bins to rotate array in rotate_1d is\n");
+      fprintf(stderr, "\nout of bounds.  Tried to rotate %ld bins.  Exiting.\n",
              bins_to_left);
       exit(1);
    }
@@ -340,7 +340,7 @@ void stats(float *x, int n, double *mean, double *var, double *skew, double *kur
    /*  Returned values were checked with Mathematica 3.01       */
 
    if (n < 1) {
-      printf("\vVector length must be > 0 in stats().  Exiting\n");
+      fprintf(stderr, "\vVector length must be > 0 in stats().  Exiting\n");
       exit(1);
    } else {
       *mean = (double) x[0];
@@ -385,7 +385,7 @@ void dstats(double *x, int n, double *mean, double *var, double *skew, double *k
    /*  Returned values were checked with Mathematica 3.01       */
 
    if (n < 1) {
-      printf("\vVector length must be > 0 in dstats().  Exiting\n");
+      fprintf(stderr, "\vVector length must be > 0 in dstats().  Exiting\n");
       exit(1);
    } else {
       *mean = (double) x[0];
@@ -430,7 +430,7 @@ void avg_var(float *x, int n, double *mean, double *var)
    /*  Returned values were checked with Mathematica 3.01       */
 
    if (n < 1) {
-      printf("\vVector length must be > 0 in avg_var().  Exiting\n");
+      fprintf(stderr, "\vVector length must be > 0 in avg_var().  Exiting\n");
       exit(1);
    } else {
       *mean = (double) x[0];
@@ -464,7 +464,7 @@ void davg_dvar(double *x, int n, double *mean, double *var)
    /*  Returned values were checked with Mathematica 3.01       */
 
    if (n < 1) {
-      printf("\vVector length must be > 0 in avg_var().  Exiting\n");
+      fprintf(stderr, "\vVector length must be > 0 in avg_var().  Exiting\n");
       exit(1);
    } else {
       *mean = (double) x[0];
