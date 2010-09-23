@@ -56,13 +56,10 @@ static Cmdline cmd = {
   /* fhiC = */ 1,
   /***** -photon: Data is poissonian so use freq 0 as power normalization */
   /* photonP = */ 0,
-<<<<<<< HEAD:src/accelsearch_cmd.c
-=======
   /***** -median: Use old-style block-median power normalization (current default) */
   /* medianP = */ 0,
   /***** -locpow: Use new-style double-tophat local-power normalization */
   /* locpowP = */ 0,
->>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:src/accelsearch_cmd.c
   /***** -zaplist: A file of freqs+widths to zap from the FFT (only if the input file is a *.[s]dat file) */
   /* zaplistP = */ 0,
   /* zaplist = */ (char*)0,
@@ -878,8 +875,6 @@ showOptionValues(void)
   } else {
     printf("-photon found:\n");
   }
-<<<<<<< HEAD:src/accelsearch_cmd.c
-=======
 
   /***** -median: Use old-style block-median power normalization (current default) */
   if( !cmd.medianP ) {
@@ -894,7 +889,6 @@ showOptionValues(void)
   } else {
     printf("-locpow found:\n");
   }
->>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:src/accelsearch_cmd.c
 
   /***** -zaplist: A file of freqs+widths to zap from the FFT (only if the input file is a *.[s]dat file) */
   if( !cmd.zaplistP ) {
@@ -941,11 +935,7 @@ showOptionValues(void)
 void
 usage(void)
 {
-<<<<<<< HEAD:src/accelsearch_cmd.c
-  fprintf(stderr,"%s","   [-lobin lobin] [-numharm numharm] [-zmax zmax] [-sigma sigma] [-rlo rlo] [-rhi rhi] [-flo flo] [-fhi fhi] [-photon] [-zaplist zaplist] [-baryv baryv] [-harmpolish] [--] infile\n");
-=======
   fprintf(stderr,"%s","   [-lobin lobin] [-numharm numharm] [-zmax zmax] [-sigma sigma] [-rlo rlo] [-rhi rhi] [-flo flo] [-fhi fhi] [-photon] [-median] [-locpow] [-zaplist zaplist] [-baryv baryv] [-harmpolish] [--] infile\n");
->>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:src/accelsearch_cmd.c
   fprintf(stderr,"%s","      Search an FFT or short time series for pulsars using a Fourier domain acceleration search with harmonic summing.\n");
   fprintf(stderr,"%s","         -lobin: The first Fourier frequency in the data file\n");
   fprintf(stderr,"%s","                 1 int value between 0 and oo\n");
@@ -970,11 +960,8 @@ usage(void)
   fprintf(stderr,"%s","                 1 double value between 0.0 and oo\n");
   fprintf(stderr,"%s","                 default: `10000.0'\n");
   fprintf(stderr,"%s","        -photon: Data is poissonian so use freq 0 as power normalization\n");
-<<<<<<< HEAD:src/accelsearch_cmd.c
-=======
   fprintf(stderr,"%s","        -median: Use old-style block-median power normalization (current default)\n");
   fprintf(stderr,"%s","        -locpow: Use new-style double-tophat local-power normalization\n");
->>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:src/accelsearch_cmd.c
   fprintf(stderr,"%s","       -zaplist: A file of freqs+widths to zap from the FFT (only if the input file is a *.[s]dat file)\n");
   fprintf(stderr,"%s","                 1 char* value\n");
   fprintf(stderr,"%s","         -baryv: The radial velocity component (v/c) towards the target during the obs\n");
@@ -983,11 +970,7 @@ usage(void)
   fprintf(stderr,"%s","    -harmpolish: Constrain harmonics to be harmonically related during polishing\n");
   fprintf(stderr,"%s","         infile: Input file name of the floating point .fft or .[s]dat file.  A '.inf' file of the same name must also exist\n");
   fprintf(stderr,"%s","                 1 value\n");
-<<<<<<< HEAD:src/accelsearch_cmd.c
-  fprintf(stderr,"%s","  version: 23Feb10\n");
-=======
   fprintf(stderr,"%s","  version: 12Mar10\n");
->>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:src/accelsearch_cmd.c
   fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
@@ -1085,8 +1068,6 @@ parseCmdline(int argc, char **argv)
       continue;
     }
 
-<<<<<<< HEAD:src/accelsearch_cmd.c
-=======
     if( 0==strcmp("-median", argv[i]) ) {
       cmd.medianP = 1;
       continue;
@@ -1097,7 +1078,6 @@ parseCmdline(int argc, char **argv)
       continue;
     }
 
->>>>>>> 95f0f4be23effa1db839d83cc07f78c52f6ad97f:src/accelsearch_cmd.c
     if( 0==strcmp("-zaplist", argv[i]) ) {
       int keep = i;
       cmd.zaplistP = 1;
