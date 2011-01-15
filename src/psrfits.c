@@ -112,7 +112,8 @@ int is_PSRFITS(char *filename)
 
     // See if the data are search-mode
     fits_read_key(fptr, TSTRING, "OBS_MODE", ctmp, comment, &status);
-    if (status || strcmp(ctmp, "SEARCH")) return 0;
+    if (status || (strcmp(ctmp, "SEARCH") && 
+                   strcmp(ctmp, "SRCH"))) return 0;
 
     fits_close_file(fptr, &status);
     return 1;  // it is search-mode  PSRFITS
@@ -123,8 +124,8 @@ int is_PSRFITS(char *filename)
         if (status) {\
             printf("Error %d reading key %s\n", status, name); \
             if (ii==0) param[0]='\0'; \
-            if (status==KEY_NO_EXIST) status=0;\
-        } else {                                                          \
+            if (status==KEY_NO_EXIST) status=0;                      \
+        } else {                                                     \
             if (ii==0) strncpy((param), ctmp, 40);                          \
             else if (strcmp((param), ctmp)!=0)                              \
                 printf("Warning!:  %s values don't match for files 0 and %d!\n", \
@@ -203,7 +204,11 @@ int read_PSRFITS_files(char **filenames, int numfiles, struct spectra_info *s)
 
         // Is the data in search mode?
         fits_read_key(s->files[ii], TSTRING, "OBS_MODE", ctmp, comment, &status);
-        if (strcmp(ctmp, "SEARCH")!=0) {
+        // Quick fix for Parkes DFB data (SRCH?  why????)...
+        if (strcmp("SRCH", ctmp)==0) {
+            strncpy(ctmp, "SEARCH", 40);
+        }
+        if (strcmp(ctmp, "SEARCH")) {
             fprintf(stderr, 
                     "\nError!  File '%s' does not contain SEARCH-mode data!\n", 
                     filenames[ii]);
@@ -215,6 +220,16 @@ int read_PSRFITS_files(char **filenames, int numfiles, struct spectra_info *s)
         // Quick fix for MockSpec data...
         if (strcmp("ARECIBO 305m", ctmp)==0) {
             strncpy(ctmp, "Arecibo", 40);
+        }
+        // Quick fix for Parkes DFB data...
+        {
+            char newctmp[80];
+
+            // Copy ctmp first since strlower() is in-place
+            strcpy(newctmp, ctmp);
+            if (strcmp("parkes", strlower(remove_whitespace(newctmp)))==0) {
+                strncpy(ctmp, "Parkes", 40);
+            }
         }
         if (status) {
             printf("Error %d reading key %s\n", status, "TELESCOP");
@@ -317,12 +332,14 @@ int read_PSRFITS_files(char **filenames, int numfiles, struct spectra_info *s)
             fits_read_col(s->files[ii], TDOUBLE,
                           s->offs_sub_col, 1L, 1L, 1L,
                           0, &offs_sub, &anynull, &status);
+
             numrows = (int)((offs_sub - 0.5 * s->time_per_subint) /
                             s->time_per_subint + 1e-7);
             // Check to see if any rows have been deleted or are missing
             if (numrows > s->start_subint[ii]) {
                 printf("Warning: NSUBOFFS reports %d previous rows\n"
-                       "         but OFFS_SUB implies %d.  Using OFFS_SUB.\n",
+                       "         but OFFS_SUB implies %d.  Using OFFS_SUB.\n"
+                       "         Will likely be able to correct for this.\n",
                        s->start_subint[ii], numrows);
             }
             s->start_subint[ii] = numrows;
@@ -930,16 +947,17 @@ int read_PSRFITS_rawblock(unsigned char *data, int *padding)
             double dnumblocks;
             int numblocks;
             dnumblocks = (offs_sub-last_offs_sub)/S.time_per_subint;
-            numblocks = (int) (dnumblocks + 1e-7);
-            //printf("\n%d  %20.15f  %20.15f  %20.15f  %20.15f  %20.15f  \n", 
-            //      cur_subint, last_offs_sub, offs_sub, 
-            //     offs_sub-last_offs_sub, S.time_per_subint, dnumblocks);
-
+            numblocks = (int) round(dnumblocks);
+            //printf("\n%d  %20.15f  %20.15f  %20.15f  %20.15f  %20.15f  %d \n", 
+            //       cur_subint, last_offs_sub, offs_sub, 
+            //       offs_sub-last_offs_sub, S.time_per_subint, dnumblocks, numblocks);
             missing_blocks++;
-            if (fabs(dnumblocks - (double)numblocks) > 1e-6)
-                printf("\nYikes!  We missed a fraction of a subint!\n");
-            printf("\nAt subint %d found %d dropped subints (%d total), adding 1.", 
-                   cur_subint, numblocks, missing_blocks);
+            if (fabs(dnumblocks - (double)numblocks) > 1e-6) {
+                printf("\nYikes!  We missed a fraction (%.20f) of a subint!\n", 
+                       fabs(dnumblocks - (double)numblocks));
+            }
+            printf("At subint %d found %d dropped subints (%d total), adding 1.\n", 
+                   cur_subint, numblocks-1, missing_blocks);
             // Add a full block of padding
             numtopad = S.spectra_per_subint * S.num_polns;
             for (ii = 0; ii < numtopad; ii++)
@@ -1093,10 +1111,27 @@ int read_PSRFITS_rawblock(unsigned char *data, int *padding)
         cur_subint++;
         return 1;
         
-    // We can't read anymore, and we need padding
-    } else if (S.num_pad[cur_file]) {
-        // The amount of padding still to be sent for this file
+    
+    } else { // We can't read anymore...  so read OFFS_SUB
+        // for the last row of the current file to see about padding
+        fits_read_col(S.files[cur_file], TDOUBLE, 
+                      S.offs_sub_col, S.num_subint[cur_file], 1L, 1L, 
+                      0, &offs_sub, &anynull, &status);
+    }
+
+    if (S.num_pad[cur_file]==0 ||
+        TEST_CLOSE(last_offs_sub, offs_sub)) {  // No padding is necessary
+        // The TEST_CLOSE check means that the lack of data we noticed
+        // upon reading the file was due to dropped data in the
+        // middle of the file that we already fixed.  So no
+        // padding is really necessary.
+        cur_file++;
+        cur_subint = 1;
+        shiftbuffer = 0;  // Since recursively calling, don't shift again
+        return read_PSRFITS_rawblock(data, padding);
+    } else { // add padding
         numtopad = S.num_pad[cur_file] - padnum;
+        // The amount of padding still to be sent for this file
         if (numtopad) {
             *padding = 1;
             if (numtopad >= S.spectra_per_subint - bufferspec) {
@@ -1146,11 +1181,6 @@ int read_PSRFITS_rawblock(unsigned char *data, int *padding)
                 return read_PSRFITS_rawblock(data, &pad);
             }
         }
-    } else {  // No padding needed.  Try reading the next file
-        cur_file++;
-        cur_subint = 1;
-        shiftbuffer = 0;  // Since recursively calling, don't shift again
-        return read_PSRFITS_rawblock(data, padding);
     }
     return 0;  // Should never get here
 }
