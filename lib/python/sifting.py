@@ -68,8 +68,11 @@ def cmp_snr(self, other):
     else:
         return retval
 
-def cmp_dms(self, other):
+def cmp_hits_dms(self, other):
     return cmp(float(self[0]), float(other[0]))
+
+def cmp_hits_sigma(self, other):
+    return -cmp(float(self[1]), float(other[1]))
 
 def cmp_freq(self, other):
     return cmp(self.r, other.r)
@@ -320,33 +323,31 @@ def remove_duplicate_candidates(candlist):
         of all the other detections.
     """
     n = len(candlist)
-    print "  Sorting the %d candidates by frequency..." % n
-    candlist.sort(cmp_freq)
+    print "  Sorting the %d candidates by sigma..." % n
+    candlist.sort(cmp_sigma)
     print "  Searching for dupes..."
     ii = 0
     # Find any match
-    while ii < n:
-        jj = ii + 1
-        if jj < n and Num.fabs(candlist[ii].r-candlist[jj].r) < r_err:
-            # Find the rest that match
-            jj += 1
-            while jj < n and Num.fabs(candlist[ii].r-candlist[jj].r) < r_err:
-                jj += 1
-            matches = candlist[ii:jj]
-            matches.sort(cmp_sigma)
-            # flag the duplicates
-            bestindex = candlist.index(matches[0])
-            candlist[bestindex].hits = []
-            for match in matches:
-                candlist[bestindex].hits.append((match.DM, match.snr))
-        else:
-            candlist[ii].hits = [(candlist[ii].DM, candlist[ii].snr)]
-        ii = jj
-    # Remove the duplicate candidates (reverse order is necessary for indexing!)
-    print "  Removing duplicates..."
-    for ii in range(len(candlist)-1, -1, -1):
-        if not hasattr(candlist[ii], 'hits'):
-            del(candlist[ii])
+    while ii < len(candlist):
+        # Candidate always gets itself as a hit
+        candlist[ii].hits = [(candlist[ii].DM, candlist[ii].sigma)]
+        r0 = candlist[ii].r
+        # Get 'r' from less significant candidates
+        rs = Num.array([c.r for c in candlist[ii+1:]])
+        # Find indices of less significant candidates that are close in 'r'.
+        to_remove = Num.flatnonzero(Num.logical_and(rs<(r0+r_err), (r0-r_err)<rs))
+        if len(to_remove):
+            # Add offset back onto indices to remove
+            to_remove += (ii+1)
+            # Sort 'to_remove' 
+            to_remove.sort()
+            # Step through 'to_remove' in descending order, so we remove candidates 
+            # from back of list first. This way the indices of candidates that are
+            # removed later are unaffected.
+            for xx in to_remove[::-1]:
+                candlist[ii].hits.append((candlist[xx].DM, candlist[xx].sigma))
+                del(candlist[xx])
+        ii += 1
     print "Found %d candidates.  Sorting them by significance...\n" % len(candlist)
     candlist.sort(cmp_sigma)
     return candlist
@@ -377,18 +378,19 @@ def remove_harmonics(candlist):
                     #      candlist[ii].f/candlist[jj].f, candlist[jj].f/candlist[ii].f
                     zapj = 1
                     break
-            # Check a few other common ratios
-            for factor in [3.0/2.0, 5.0/2.0,
-                           2.0/3.0, 4.0/3.0, 5.0/3.0,
-                           3.0/4.0, 5.0/4.0,
-                           2.0/5.0, 3.0/5.0, 4.0/5.0]:
-                if Num.fabs(candlist[ii].f-candlist[jj].f*factor) < f_err:
-                    #print "  Removing ", candlist[jj].filename, candlist[jj].candnum, \
-                    #      candlist[jj].f, "because of", candlist[ii].filename, \
-                    #      candlist[ii].candnum, candlist[ii].f, \
-                    #      candlist[ii].f/candlist[jj].f, candlist[jj].f/candlist[ii].f
-                    zapj = 1
-                    break
+            if not zapj:
+                # Check a few other common ratios
+                for factor in [3.0/2.0, 5.0/2.0,
+                               2.0/3.0, 4.0/3.0, 5.0/3.0,
+                               3.0/4.0, 5.0/4.0,
+                               2.0/5.0, 3.0/5.0, 4.0/5.0]:
+                    if Num.fabs(candlist[ii].f-candlist[jj].f*factor) < f_err:
+                        #print "  Removing ", candlist[jj].filename, candlist[jj].candnum, \
+                        #      candlist[jj].f, "because of", candlist[ii].filename, \
+                        #      candlist[ii].candnum, candlist[ii].f, \
+                        #      candlist[ii].f/candlist[jj].f, candlist[jj].f/candlist[ii].f
+                        zapj = 1
+                        break
             if zapj:
                 numcands += 1
                 del(candlist[jj])
@@ -414,31 +416,40 @@ def remove_DM_problems(candlist, numdms, dmlist, low_DM_cutoff):
     dmdict = {}
     for ii in range(len(dmlist)):
         dmdict[dmlist[ii]] = ii
-    numcands = 0
+    num_toofew = 0
+    num_toolow = 0
+    num_toosparse = 0
     candlist.sort(cmp_sigma)
     for ii in range(len(candlist)-1, -1, -1):
         # Remove all the candidates without enough DM hits
         if len(candlist[ii].hits) < numdms:
-            numcands += 1
+            num_toofew += 1
             del(candlist[ii])
             continue
         # Remove all the candidates where the max SNR DM is less than the cutoff DM
-        if float(candlist[ii].hits[0][0]) <= low_DM_cutoff:
-            numcands += 1
+        candlist[ii].hits.sort(cmp_hits_sigma)
+        maxsigma = candlist[ii].hits[0][1]
+        dms = [float(hit[0]) for hit in candlist[ii].hits if hit[1]==maxsigma]
+        if min(dms) <= low_DM_cutoff:
+            num_toolow += 1
             del(candlist[ii])
             continue
         # Remove all the candidates where there are no hits at consecutive DMs
         if len(candlist[ii].hits) > 1:
-            candlist[ii].hits.sort(cmp_dms)
+            candlist[ii].hits.sort(cmp_hits_dms)
             dm_indices = Num.asarray([dmdict["%.2f"%candlist[ii].hits[jj][0]]
                                       for jj in range(len(candlist[ii].hits))])
             min_dmind_diff = min(dm_indices[1:] - dm_indices[:-1])
             if min_dmind_diff > 1:
-                numcands += 1
+                num_toosparse += 1
                 del(candlist[ii])
                 continue
 
-    print "Removed a total of %d candidates with DM problems.\n" % numcands
+    print "Removed a total of %d candidates with DM problems." % \
+        (num_toofew+num_toolow+num_toosparse)
+    print "    Number removed due to too few hits: %d" % num_toofew
+    print "    Number removed due to best hit too close to DM=0: %d" % num_toolow
+    print "    Number removed due to hits being too sparse: %d\n" % num_toosparse
     return candlist
 
 def write_candlist(candlist, candfilenm=None):
@@ -453,7 +464,7 @@ def write_candlist(candlist, candfilenm=None):
     for goodcand in candlist:
         candfile.write("%s (%d)\n" % (str(goodcand), len(goodcand.hits)))
         if (len(goodcand.hits) > 1):
-            goodcand.hits.sort(cmp_dms)
+            goodcand.hits.sort(cmp_hits_dms)
             for hit in goodcand.hits:
                 numstars = int(hit[1]/3.0)
                 candfile.write("  DM=%6.2f SNR=%5.2f   "%hit + numstars*'*' + '\n')
