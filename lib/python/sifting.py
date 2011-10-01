@@ -467,7 +467,7 @@ def write_candlist(candlist, candfilenm=None):
             goodcand.hits.sort(cmp_hits_dms)
             for hit in goodcand.hits:
                 numstars = int(hit[1]/3.0)
-                candfile.write("  DM=%6.2f SNR=%5.2f   "%hit + numstars*'*' + '\n')
+                candfile.write("  DM=%6.2f Sigma=%5.2f   "%hit + numstars*'*' + '\n')
     if candfilenm is not None:
         candfile.close()
 
