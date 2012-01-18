@@ -282,6 +282,7 @@ class pfd:
         # Get frequency and frequency derivative offsets
         f_diff = bestf - foldf
         fd_diff = bestfd - foldfd
+
         # bestpdd=0.0 only if there was no searching over pdd
         if bestpdd != 0.0:
             fdd_diff = bestfdd - foldfdd
@@ -289,6 +290,29 @@ class pfd:
             fdd_diff = 0.0
 
         return (f_diff, fd_diff, fdd_diff)
+
+    def use_for_timing(self):
+        """
+        use_for_timing():
+            This method returns True or False depending on whether
+            the .pfd file can be used for timing or not.  For this
+            to return true, the pulsar had to have been folded with
+            a parfile and -no[p/pd]search (this includes -timing), or
+            with a p/pdot/pdotdot and a corresponding -no[p/pd]search.
+            In other words, if you let prepfold search for the best
+            p/pdot/pdotdot, you will get bogus TOAs if you try timing
+            with it.
+        """
+        T = self.T
+        bin_dphi = 1.0/self.proflen
+        # If any of the offsets causes more than a 0.1-bin rotation over
+        # the obs, then prepfold searched and we can't time using it
+        offsets = Num.fabs(Num.asarray(self.freq_offsets()))
+        dphis = offsets * Num.asarray([T, T**2.0/2.0, T**3.0/6.0])
+        if max(dphis) > 0.1 * bin_dphi:
+            return False
+        else:
+            return True
 
     def time_vs_phase(self, p=None, pd=None, pdd=None, interp=0):
         """
