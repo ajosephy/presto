@@ -5,14 +5,29 @@ from bestprof import bestprof
 import matplotlib.pyplot as plt
 import numpy as Num
 import mpfit, sys
+import argparse
+import os
+import os.path
+import subprocess
+
+USAGE = """
+Left mouse draws a region roughly boxing where you'll place a gaussian.
+    Draw several to fit multiple gaussians.
+Middle mouse performs the fit.
+Right mouse removes the last gaussian from the fit.
+
+Paste the full resulting STDOUT to a '.gaussians' file for use
+in get_TOAs.py or sum_profiles.py with the '-g' parameter as a template.
+"""
 
 class GaussianSelector:
     def __init__(self, ax, profile, errs, profnm, minspanx=None,
-                 minspany=None, useblit=True):
+                 minspany=None, useblit=True, outfn=None):
         self.ax = ax.axes
         self.profile = profile
         self.proflen = len(profile)
         self.profnm = profnm
+        self.outfn = outfn
         self.phases = Num.arange(self.proflen, dtype='d')/self.proflen
         self.errs = errs
         self.visible = True
@@ -22,6 +37,7 @@ class GaussianSelector:
         self.canvas = ax.figure.canvas
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.canvas.mpl_connect('button_press_event', self.press)
+        self.canvas.mpl_connect('key_press_event', self.keypress)
         self.canvas.mpl_connect('button_release_event', self.release)
         self.canvas.mpl_connect('draw_event', self.update_background)
         self.background = None
@@ -53,7 +69,13 @@ class GaussianSelector:
         # same.
         return (event.inaxes!=self.ax or
                 event.button != self.eventpress.button)
-      
+
+    def keypress(self, event):
+        if event.key in ('q', 'Q'):
+            plt.close()
+        elif event.key in ('f', 'F'):
+            self.dofit()    
+
     def press(self, event):
         'on button press event'
         # Is the correct button pressed within the correct axes?
@@ -124,6 +146,34 @@ class GaussianSelector:
             phase, FWHM, amp = params[1+ii*3:4+ii*3]
             plt.plot(self.phases, DC + amp*gaussian_profile(self.proflen, phase, FWHM))
 
+    def dofit(self):
+        fit_params, fit_errs, chi_sq, dof = \
+                    fit_gaussians(self.profile, self.init_params,
+                                  Num.zeros(self.proflen)+self.errs,
+                                  self.profnm, self.outfn)
+        # Save the fit parameters so the caller can retrieve them if needed
+        self.fit_params = fit_params
+        self.fit_errs = fit_errs
+        # scaled uncertainties
+        #scaled_fit_errs = fit_errs * Num.sqrt(chi_sq / dof)
+
+        # Plot the best-fit profile
+        self.plot_gaussians(fit_params)
+        fitprof = gen_gaussians(fit_params, self.proflen)
+        self.fitprof = fitprof
+        plt.plot(self.phases, fitprof, c='black', lw=1)
+        plt.draw()
+        
+        # Plot the residuals
+        plt.subplot(212)
+        plt.cla()
+        residuals = self.profile - fitprof
+        plt.errorbar(self.phases, residuals, self.errs,fmt='.')
+        plt.grid(True)
+        plt.xlabel('Pulse Phase')
+        plt.ylabel('Data-Fit Residuals')
+        plt.draw()
+
     def onselect(self):
         event1 = self.eventpress
         event2 = self.eventrelease
@@ -140,32 +190,7 @@ class GaussianSelector:
             plt.draw()
         # Middle mouse button = fit the gaussians
         elif event1.button == event2.button == 2:
-            fit_params, fit_errs, chi_sq, dof = \
-                        fit_gaussians(self.profile, self.init_params,
-                                      Num.zeros(self.proflen)+self.errs,
-                                      self.profnm)
-            # Save the fit parameters so the caller can retrieve them if needed
-            self.fit_params = fit_params
-            self.fit_errs = fit_errs
-            # scaled uncertainties
-            #scaled_fit_errs = fit_errs * Num.sqrt(chi_sq / dof)
-
-            # Plot the best-fit profile
-            self.plot_gaussians(fit_params)
-            fitprof = gen_gaussians(fit_params, self.proflen)
-            self.fitprof = fitprof
-            plt.plot(self.phases, fitprof, c='black', lw=1)
-            plt.draw()
-            
-            # Plot the residuals
-            plt.subplot(212)
-            plt.cla()
-            residuals = self.profile - fitprof
-            plt.errorbar(self.phases, residuals, self.errs,fmt='.')
-            plt.grid(True)
-            plt.xlabel('Pulse Phase')
-            plt.ylabel('Data-Fit Residuals')
-            plt.draw()
+            self.dofit()
         # Right mouse button = remove last gaussian
         elif event1.button == event2.button == 3:
             if self.numgaussians:
@@ -199,7 +224,7 @@ def gen_gaussians(params, N):
 def fit_function(params, fjac=None, data=None, errs=None):
     return [0, (data - gen_gaussians(params, len(data))) / errs]
 
-def fit_gaussians(data, initial_params, errs, profnm):
+def fit_gaussians(data, initial_params, errs, profnm, outfn=None):
     numparams = len(initial_params)
     numgaussians = (len(initial_params)-1)/3
     # Generate the parameter structure
@@ -219,41 +244,37 @@ def fit_gaussians(data, initial_params, errs, profnm):
     dof = len(data) - len(fit_params)
     # chi-squared for the model fit
     chi_sq = mpfit_out.fnorm
-    print "------------------------------------------------------------------"
-    print "Multi-Gaussian Fit by pygaussfit.py of '%s'"%profnm
-    print "------------------------------------------------------------------"
-    print "mpfit status:", mpfit_out.status
-    print "gaussians:", numgaussians
-    print "DOF:", dof
-    print "chi-sq: %.2f" % chi_sq
-    print "reduced chi-sq: %.2f" % (chi_sq/dof)
+    
+    output  = "------------------------------------------------------------------\n"
+    output += "Multi-Gaussian Fit by pygaussfit.py of '%s'\n"%profnm
+    output += "------------------------------------------------------------------\n"
+    output += "mpfit status: %s\n" % mpfit_out.status
+    output += "gaussians: %s\n" % numgaussians
+    output += "DOF: %s\n" % dof
+    output += "chi-sq: %.2f\n" % chi_sq
+    output += "reduced chi-sq: %.2f\n" % (chi_sq/dof)
     residuals = data - gen_gaussians(fit_params, len(data))
-    print "residuals  mean: %.3g" % Num.mean(residuals)
-    print "residuals stdev: %.3g" % Num.std(residuals)
-    print "--------------------------------------"
-    print " const = %.5f +/- %.5f" % (fit_params[0], fit_errs[0])
+    output += "residuals  mean: %.3g\n" % Num.mean(residuals)
+    output += "residuals stdev: %.3g\n" % Num.std(residuals)
+    output += "--------------------------------------\n"
+    output += " const = %.5f +/- %.5f\n" % (fit_params[0], fit_errs[0])
     for ii in range(numgaussians):
-        print " phas%d = %.5f +/- %.5f" % (ii+1, fit_params[1+ii*3], fit_errs[1+ii*3])
-        print " fwhm%d = %.5f +/- %.5f" % (ii+1, fit_params[2+ii*3], fit_errs[2+ii*3])
-        print " ampl%d = %.5f +/- %.5f" % (ii+1, fit_params[3+ii*3], fit_errs[3+ii*3])
-    print "--------------------------------------"
+        output += " phas%d = %.5f +/- %.5f\n" % (ii+1, fit_params[1+ii*3], fit_errs[1+ii*3])
+        output += " fwhm%d = %.5f +/- %.5f\n" % (ii+1, fit_params[2+ii*3], fit_errs[2+ii*3])
+        output += " ampl%d = %.5f +/- %.5f\n" % (ii+1, fit_params[3+ii*3], fit_errs[3+ii*3])
+    output += "--------------------------------------\n"
+    if outfn is not None:
+        with open(outfn, 'w') as ff:
+            ff.write(output)
+    print output
     return fit_params, fit_errs, chi_sq, dof
 
-if __name__ == '__main__':
 
+def main():
     if len(sys.argv)==1:
         from numpy.random import normal
 
-        print """usage:  python pygaussfit.py bestprof_file prof_stdev
-
-Left mouse draws a region roughly boxing where you'll place a gaussian.
-    Draw several to fit multiple gaussians.
-Middle mouse performs the fit.
-Right mouse removes the last gaussian from the fit.
-
-Paste the full resulting STDOUT to a '.gaussians' file for use
-in get_TOAs.py or sum_profiles.py with the '-g' parameter as a template."""
-
+        print USAGE
 
         N = 128
         DC = 600.0
@@ -267,18 +288,46 @@ in get_TOAs.py or sum_profiles.py with the '-g' parameter as a template."""
         prof = normal(0.0, noise_stdev, N) + gen_gaussians(params, N)
         filenm = "test"
     else:
-        filenm = sys.argv[1]
+        if args.bestprof_file.endswith(".pfd"):
+            # Input is pfd file
+            pfdfn = args.bestprof_file
+            # Check for bestprof
+            if not os.path.exists(pfdfn+".bestprof"):
+                # Create bestprof file with show_pfd
+                devnull = open(os.devnull, 'w')
+                subprocess.call(['show_pfd', '-noxwin', pfdfn], 
+                                stdout=devnull)
+                devnull.close()
+            filenm = pfdfn+".bestprof"
+        else:
+            filenm = args.bestprof_file
         prof = read_profile(filenm, normalize=0)
-        if len(sys.argv)>=3:
-            noise_stdev = float(sys.argv[2])
+        if args.prof_stdev is not None:
+            noise_stdev = args.prof_stdev
         else:
             try:
-                bprof = bestprof(sys.argv[1])
+                bprof = bestprof(filenm)
                 noise_stdev = bprof.prof_std
             except:
                 noise_stdev = 1.0
     fig = plt.figure()
     dataplot = fig.add_subplot(211)
-    interactor = GaussianSelector(dataplot, prof, noise_stdev, filenm)
+    interactor = GaussianSelector(dataplot, prof, noise_stdev, filenm, outfn=args.outfn)
     plt.show()
-    
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Fit profile with Gaussians.\n"+USAGE)
+    parser.add_argument("-o", "--outfile", type=str,
+                        default=None, dest='outfn',
+                        help="Name of file to write gaussians to. "
+                             "(Default: write to STDOUT)")
+    parser.add_argument("bestprof_file", type=str,
+                        help="A bestprof file "
+                             "containing a profile to fit.")
+    parser.add_argument("prof_stdev", nargs='?', type=float,
+                        help="Noise standard deviation. "
+                             "(Default: read from bestprof file)")
+    args = parser.parse_args()
+    main()
+     
