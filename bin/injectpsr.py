@@ -8,7 +8,10 @@ Patrick Lazarus, June 26, 2012
 import sys
 import argparse
 import warnings
-import pickle
+try: 
+    import dill as pickle 
+except: 
+    import pickle
 import copy
 
 import numpy as np
@@ -19,7 +22,8 @@ matplotlib.use('agg') # Use a non-interactive backend
 import matplotlib.pyplot as plt
 import scipy.integrate
 
-import filterbank
+import formats
+from formats import GeneralFile
 import psr_utils
 
 DEBUG = False # Print debugging messages
@@ -829,12 +833,12 @@ def snr_from_smean(fil, prof, smean, gain, tsys):
 
 def inject(infile, outfn, prof, period, dm, nbitsout=None, 
            block_size=BLOCKSIZE, pulsar_only=False, inplace=False):
-    if isinstance(infile, filterbank.FilterbankFile):
+    if isinstance(infile, formats.GeneralFile):
         fil = infile
     elif inplace:
-        fil = filterbank.FilterbankFile(infile, 'readwrite')
+        fil = formats.GeneralFile(infile, 'readwrite')
     else:
-        fil = filterbank.FilterbankFile(infile, 'read')
+        fil = formats.GeneralFile(infile, 'read')
     print "Injecting pulsar signal into: %s" % fil.filename
     if False:
         delays = psr_utils.delay_from_DM(dm, fil.frequencies)
@@ -850,10 +854,13 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
         warnings.warn("Injecting pulsar signal *in-place*")
         outfil = fil
     else:
-        # Start an output file
-        print "Creating out file: %s" % outfn
-        outfil = filterbank.create_filterbank_file(outfn, fil.header, \
+        if '.fil' in fil.filename:
+            # Start an output file
+            print "Creating out file: %s" % outfn
+            outfil = formats.create_filterbank_file(outfn, fil.header, \
                                             nbits=nbitsout, mode='append')
+        elif '.fits' in fil.filename:
+            outfil = fil
 
     if outfil.nbits == 8:
         raise NotImplementedError("This code is out of date. 'delays' is not " \
@@ -900,12 +907,25 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
         profvals.shape = shape
         toinject = profvals.mean(axis=1)
         #toinject = profvals
+    
+        ####   Modification by Alex Josephy (July 2015)   ####
+        #   Goal was: Inject pulses with tiny duty cycle- simulating single bursts
+        #   Solution is: Skip n pulses for every written pulse (n=args.skip)
+        #   Thinking was:  Didn't want large proportion of profile to be zero
+        #        (eg. losing numeric accuracy and have Von Mises -> Gaussian)
+        if args.skip > 0:
+            ph_delays = get_phasedelays(dm,fil.frequencies,period)
+            mask = (np.zeros((fil.nchans,len(times)))+times/period).T
+            mask = (mask - phase_delays).astype(int)
+            toinject[ mask % (args.skip+1) != 1 ] = 0.
+        ####
+
         if np.ndim(toinject) > 1:
             injected = spectra+toinject
         else:
             injected = spectra+toinject[:,np.newaxis]
         scaled = (injected-minimum)*global_scale
-        if inplace:
+        if inplace or '.fits' in fil.filename:
             outfil.write_spectra(scaled, lobin)
         else:
             outfil.append_spectra(scaled)
@@ -922,6 +942,10 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
         spectra = fil.get_spectra(lobin, lobin+block_size)
         numread = spectra.shape[0]
 
+    if '.fits' in fil.filename and not inplace:
+        sys.stdout.write("Writing %s...\n" % outfn)
+        fil.make_clone(outfn)
+    
     sys.stdout.write("Done   \n")
     sys.stdout.flush()
 
@@ -1098,16 +1122,35 @@ def make_profile(vonmises, verbose=True):
 def main():
     fn = args.infile
     if args.inplace:
-        fil = filterbank.FilterbankFile(fn, mode='readwrite')
+        fil = formats.GeneralFile(fn, 'readwrite')
     else:
-        fil = filterbank.FilterbankFile(fn, mode='read')
-    if args.inprof is not None:
+        fil = formats.GeneralFile(fn, 'read')
+    if args.inprof is not None and '.p' not in args.inprof:
         warnings.warn("Saved profiles already may be tuned to a particular " \
                         "DM, period and filterbank file (freq, nchans, " \
                         "tsamp, etc).")
         prof = load_profile(args.inprof)
     else:
-        prof = make_profile(args.vonmises)
+        if args.inprof is not None:
+            with open(args.inprof, 'rb') as f:
+                prof = pickle.load(f)
+        else:
+            prof = make_profile(args.vonmises)
+        
+        ####   Added by Alex Josephy (July 2015)   ####
+        #   Period argument is overridden to give specified pulse width
+        #   Pulses are then skipped to give a new observed period: T'
+        #   T' is at least the length of the supplied period
+        #   If no period was given, 5s is used.
+        if args.sp_width > 0:
+            new_T = args.sp_width/prof.get_equivalent_width()
+            old_T = args.period if args.period > 0 else 5.0
+            args.skip = max(np.floor(old_T/new_T),args.skip)
+            args.period = new_T
+            print "Period is now %f s..." % ((args.skip+1)*new_T),
+            print "(Skipping %d pulses of period %f s)" % (args.skip,new_T)
+        ####
+
         prof = apply_dm(prof, args.period, args.dm, \
                         fil.foff, fil.frequencies, fil.tsamp)
         scale_profile(prof, args.scale_name, args.scale_cfgstrs, fil)
@@ -1193,7 +1236,7 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--period", dest='period', \
                     default=None, type=float, \
                     help="The period (in seconds) of the (fake) injected " \
-                        "pulsar signal. (This argument is required.)")
+                        "pulsar signal. (Unless sp-width is given, this argument is required.)")
     parser.add_argument("-c", "--scale-configs", dest='scale_cfgstrs', type=str, \
                     required=True, default=[], action='append', \
                     help="A string of comma-separated parameters to " \
@@ -1254,13 +1297,24 @@ if __name__ == '__main__':
                     help="Inject the pulsar signal in-place. " \
                          "THIS WILL OVERWRITE THE INPUT DATAFILE!" \
                          "(Default: Do _not_ inject in-place)")
+    parser.add_argument("--skip", type=int, default=0, \
+                    help="Skip pulses. " \
+                         "Useful for giving room to simulate single pulses" \
+                         "(Default: 0 -- write every pulse)")
+    parser.add_argument("--sp-width", type=float, default=None, \
+                    help="Specify a pulse width in seconds. " \
+                         "Causes provided periodicity to be approximate. " \
+                         "(Default: None)")
     parser.add_argument("infile", \
                     help="File that will receive synthetic pulses.")
     args = parser.parse_args()
-    if args.period is None or args.dm is None:
-        raise ValueError("Both a period and a DM _must_ be provided!")
+    if args.dm is None:
+        raise ValueError("A DM _must_ be provided!")
+    if args.period is None and args.sp_width is None:
+        raise ValueError("Either a single-pulse width or a period _must_ be provided!")
     if args.scale_name is not None and args.inprof is not None:
-        raise ValueError("Loading a saved profile via the " \
-                        "'--load-prof' args is incompatible " \
-                        "with scaling the profile.")
+        if '.p' not in args.inprof:
+            raise ValueError("Loading a saved scaled profile via the " \
+                             "'--load-prof' args is incompatible " \
+                             "with scaling the profile.")
     main()
