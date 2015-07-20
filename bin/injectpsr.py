@@ -116,7 +116,27 @@ class Profile(object):
         phs = np.linspace(0, 1.0, npts+1, endpoint=True)
         profmax = np.max(self(phs))
         return profmax
-       
+    
+    
+    def get_t90(self, npts=4096):
+        """Determine and return the T90 of the profile, in phase.
+            T90 measures from the peak to the next pt <=10% of the peak.
+
+            Input:
+                npts: The number of points to use when evaluating the profile.
+
+            Output:
+                fwhm: The T90 of the profile, in phase.
+        """
+        phs = np.linspace(0, 1.0, npts+1, endpoint=True)
+        vals = self(phs)
+        M = max(vals)
+        iM = np.argmax(vals)
+        for i, x in enumerate(vals):
+            if i > iM and x <= 0.1*M:
+                return float(i-iM)/npts
+
+
     def get_fwhm(self, npts=4096):
         """Determine and return the FWHM of the profile, in phase.
             This only works if two points in the profile are at half-maximum,
@@ -524,7 +544,7 @@ def get_phasedelays(dm, freqs, period):
     return phasedelays
 
 
-def apply_dm(inprof, period, dm, chan_width, freqs, tsamp, \
+def apply_dm(inprof, period, nom_dm, dm, chan_width, freqs, tsamp, \
                 do_delay=True, do_smear=True, do_scatter=True):
     """Given a profile apply DM delays, smearing, and scattering 
         within each channel as is appropriate for the given params.
@@ -553,25 +573,36 @@ def apply_dm(inprof, period, dm, chan_width, freqs, tsamp, \
     # A list of profiles, one for each channel
     profiles = []
 
-    if dm <= 0:
-        warnings.warn("DM will not be applied because it is 0 (or smaller?!)")
+    if nom_dm == dm:
+        warnings.warn("DM delay/smearing will not be applied because DM is nominal.")
         do_delay = False
         do_smear = False
+    if dm <= 0:
+        warnings.warn("Scattering will not be applied because DM is zero or negative")
         do_scatter = False
 
     if do_delay:
-        phasedelays = get_phasedelays(dm, freqs, period)
+        phasedelays = get_phasedelays(dm-nom_dm, freqs, period)
     else:
         phasedelays = np.zeros(nfreqs)
 
     # Prepare for smear campaign
-    smeartimes = psr_utils.dm_smear(dm, abs(chan_width), freqs) # In seconds
+    smeartimes = psr_utils.dm_smear(abs(dm-nom_dm), abs(chan_width), freqs) # In seconds
     smearphases = smeartimes/period
-    
-    # Prepare to scatter
-    scattertimes = psr_utils.pulse_broadening(dm, freqs)*1e-3 # In seconds
-    scatterphases = scattertimes/period
 
+    # Prepare to scatter
+    try: ### see if scattering by some time at nominal frequency was desired
+        try:
+            nom_f = float(args.alt_scatter.split(',')[0]) 
+            t = float(args.alt_scatter.split(',')[1])
+        except:
+            nom_f = min(freqs)
+            t = float(args.alt_scatter)
+        scattertimes = t*(freqs/nom_f)**-4.4 
+    except: ### use regular dm-dependent scattering
+        scattertimes = psr_utils.pulse_broadening(dm, freqs)*1e-3 # In seconds
+    scatterphases = scattertimes/period
+    print '######', max(scattertimes)
     if DEBUG:
         for ichan, (freq, smear, scatt, delay) in \
                 enumerate(zip(freqs, smearphases, scatterphases, phasedelays)):
@@ -620,7 +651,7 @@ def apply_dm(inprof, period, dm, chan_width, freqs, tsamp, \
 #        else:
 #            ylim3 = ax3.get_ylim()
 #        tmpprof.plot()
-        if do_scatter and not ((scattphs < 0.2*weq) or (scattphs < (tsamp/period))):
+        if do_scatter or not ((scattphs < 0.2*weq) or (scattphs < (tsamp/period))):
             # Only scatter if requested and scattering-phase is large enough
 #            ex = exponential_factory(scattphs)
 #            ax4 = plt.subplot(5,1,4,sharex=ax)
@@ -794,7 +825,12 @@ def scale_from_snr(fil, prof, snr, rms):
     area = prof.get_area()
     profmax = prof.get_max()
 
-    scale = snr*rms/fil.nchans/np.sqrt(fil.nspec*profmax*area)
+    try: 
+        isSP = args.skip is not None or args.sp_width is not None
+    except: 
+        isSP = False
+    scale = snr*rms/fil.nchans/np.sqrt(profmax*area) if isSP \
+       else snr*rms/fil.nchans/np.sqrt(fil.nspec*profmax*area)  
     print "Average area %s, average profile maximum: %s" % \
             (np.mean(area), np.mean(profmax))
     print "Average recommended scale factor: %s" % np.mean(scale)
@@ -916,7 +952,7 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
         if args.skip > 0:
             ph_delays = get_phasedelays(dm,fil.frequencies,period)
             mask = (np.zeros((fil.nchans,len(times)))+times/period).T
-            mask = (mask - phase_delays).astype(int)
+            mask = (mask - ph_delays).astype(int)
             toinject[ mask % (args.skip+1) != 1 ] = 0.
         ####
 
@@ -1142,16 +1178,36 @@ def main():
         #   Pulses are then skipped to give a new observed period: T'
         #   T' is at least the length of the supplied period
         #   If no period was given, 5s is used.
-        if args.sp_width > 0:
-            new_T = args.sp_width/prof.get_equivalent_width()
+        if args.sp_width is not None:
+            try:
+                w_type = args.sp_width.split(',')[0].lower()
+                w = float(args.sp_width.split(',')[1])
+            except:
+                w_type = 'eq'
+                w = float(args.sp_width)
+            if w_type == 'eq':
+                new_T = w/prof.get_equivalent_width()
+            elif w_type == 'fwhm':
+                new_T = w/prof.get_fwhm()
+            elif w_type == 't90':
+                new_T = w/prof.get_t90()
+            else:
+                raise ValueError("Width type must be EQ,FWHM, or T90.")
             old_T = args.period if args.period > 0 else 5.0
             args.skip = max(np.floor(old_T/new_T),args.skip)
             args.period = new_T
             print "Period is now %f s..." % ((args.skip+1)*new_T),
             print "(Skipping %d pulses of period %f s)" % (args.skip,new_T)
         ####
-
-        prof = apply_dm(prof, args.period, args.dm, \
+        
+        try:
+            nomDM = float(args.dm.split(',')[0])
+            DM = float(args.dm.split(',')[1])
+        except:
+            nomDM = 0.
+            DM = float(args.dm)
+        
+        prof = apply_dm(prof, args.period, nomDM, DM, \
                         fil.foff, fil.frequencies, fil.tsamp)
         scale_profile(prof, args.scale_name, args.scale_cfgstrs, fil)
         if args.outprof is not None:
@@ -1167,7 +1223,7 @@ def main():
     if args.dryrun:
         sys.exit()
 
-    inject(fil, outfn, prof, args.period, args.dm, \
+    inject(fil, outfn, prof, args.period, DM-nomDM, \
             nbitsout=args.output_nbits, block_size=args.block_size, \
             pulsar_only=args.pulsar_only, inplace=args.inplace)
 
@@ -1229,8 +1285,9 @@ class ScaleHelpAction(argparse.Action):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='injectpsr.py', \
                     description="v0.7 Patrick Lazarus (Jan 16, 2014)")
-    parser.add_argument("--dm", dest='dm', type=float, \
+    parser.add_argument("--dm", dest='dm', type=str, \
                     help="The DM of the (fake) injected pulsar signal. " \
+                        "OR the nominal DM with the injected DM as 'nomDM,DM'. " \
                         "(This argument is required.", \
                     default=None)
     parser.add_argument("-p", "--period", dest='period', \
@@ -1277,7 +1334,7 @@ if __name__ == '__main__':
                     default=True, \
                     help="Do not apply the DM (i.e. do not delay or smear " \
                         "the pulse; Default: Apply DM)")
-    parser.add_argument("--load-prof", dest="inprof", default=None, \
+    parser.add_argument("-l","--load-prof", dest="inprof", default=None, \
                     help="Load a profile object from file. (Default: " \
                         "create a fresh profile object.)")
     parser.add_argument("--save-prof", dest='outprof', default=None, \
@@ -1297,14 +1354,19 @@ if __name__ == '__main__':
                     help="Inject the pulsar signal in-place. " \
                          "THIS WILL OVERWRITE THE INPUT DATAFILE!" \
                          "(Default: Do _not_ inject in-place)")
-    parser.add_argument("--skip", type=int, default=0, \
+    parser.add_argument("--skip", type=int, default=None, \
                     help="Skip pulses. " \
                          "Useful for giving room to simulate single pulses" \
                          "(Default: 0 -- write every pulse)")
-    parser.add_argument("--sp-width", type=float, default=None, \
+    parser.add_argument("-w","--sp-width", type=str, default=None, \
                     help="Specify a pulse width in seconds. " \
                          "Causes provided periodicity to be approximate. " \
                          "(Default: None)")
+    parser.add_argument("--alt-scatter", type=str, default=None, \
+                    help="DM-independent scattering. Give scattering time "\
+                        "in seconds OR 'nom_f,t' to specify time at ref.freq. " \
+                        "Default ref.freq. is lowest freq." \
+                        "(Default: None -- i.e Use DM for scattering)")
     parser.add_argument("infile", \
                     help="File that will receive synthetic pulses.")
     args = parser.parse_args()
