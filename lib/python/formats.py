@@ -13,7 +13,6 @@ unpack_4bit = lambda xs: np.dstack([xs & 15, xs >> 4]).flatten()
 class GeneralFile:
 
     def __init__(self, fn, *args):
-        print '$$$$$$$'
         if '.fil' in fn:
             if 'update' in args:
                 args.remove('update')

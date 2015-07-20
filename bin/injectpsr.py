@@ -602,7 +602,6 @@ def apply_dm(inprof, period, nom_dm, dm, chan_width, freqs, tsamp, \
     except: ### use regular dm-dependent scattering
         scattertimes = psr_utils.pulse_broadening(dm, freqs)*1e-3 # In seconds
     scatterphases = scattertimes/period
-    print '######', max(scattertimes)
     if DEBUG:
         for ichan, (freq, smear, scatt, delay) in \
                 enumerate(zip(freqs, smearphases, scatterphases, phasedelays)):
@@ -827,9 +826,11 @@ def scale_from_snr(fil, prof, snr, rms):
 
     try: 
         isSP = args.skip is not None or args.sp_width is not None
+        T = args.period
+        bins = int(T/fil.dt)
     except: 
         isSP = False
-    scale = snr*rms/fil.nchans/np.sqrt(profmax*area) if isSP \
+    scale = snr*rms/fil.nchans/np.sqrt(bins*profmax*area) if isSP \
        else snr*rms/fil.nchans/np.sqrt(fil.nspec*profmax*area)  
     print "Average area %s, average profile maximum: %s" % \
             (np.mean(area), np.mean(profmax))
