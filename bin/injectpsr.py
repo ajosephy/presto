@@ -828,9 +828,12 @@ def scale_from_snr(fil, prof, snr, rms):
         isSP = args.skip is not None or args.sp_width is not None
         T = args.period
         bins = int(T/fil.dt)
+        width = np.mean(prof.get_equivalent_width())
+        pw = int(width*bins)
+        print '>>>Pulse Bins>>> ', pw
     except: 
         isSP = False
-    scale = snr*rms/fil.nchans/np.sqrt(bins*profmax*area) if isSP \
+    scale = snr*rms/fil.nchans/np.sqrt(bins*profmax*area/pw) if isSP \
        else snr*rms/fil.nchans/np.sqrt(fil.nspec*profmax*area)  
     print "Average area %s, average profile maximum: %s" % \
             (np.mean(area), np.mean(profmax))
