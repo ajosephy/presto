@@ -6,14 +6,19 @@ a filterbank file.
 Patrick Lazarus, June 26, 2012
 """
 import sys
+from subprocess import Popen, PIPE
 import argparse
 import warnings
+import time
 try: 
     import dill as pickle 
 except: 
     import pickle
 import copy
-
+try:
+    from astropy.time import Time
+except:
+    print "No astropy: epoch argument will not work with MJD's"
 import numpy as np
 import scipy.integrate
 import scipy.interpolate
@@ -828,12 +833,11 @@ def scale_from_snr(fil, prof, snr, rms):
         isSP = args.skip is not None or args.sp_width is not None
         T = args.period
         bins = int(T/fil.dt)
-        width = np.mean(prof.get_equivalent_width())
-        pw = int(width*bins)
-        print '>>>Pulse Bins>>> ', pw
+        width = prof.get_equivalent_width()
+        pw = (width*bins).astype(int)
     except: 
         isSP = False
-    scale = snr*rms/fil.nchans/np.sqrt(bins*profmax*area/pw) if isSP \
+    scale = snr*rms/fil.nchans/np.sqrt(pw) if isSP \
        else snr*rms/fil.nchans/np.sqrt(fil.nspec*profmax*area)  
     print "Average area %s, average profile maximum: %s" % \
             (np.mean(area), np.mean(profmax))
@@ -862,13 +866,26 @@ def snr_from_smean(fil, prof, smean, gain, tsys):
     # Characterise the recipient filterbank file
     tint = fil.nspec*fil.tsamp
     bw = np.abs(fil.foff*fil.nchans)
+    
+    # Check for Single Pulse Mode
+    try:
+        isSP = args.skip is not None or args.sp_width is not None
+        profmax = prof.get_max()
+        area = prof.get_area()
+        T = args.period
+        bins = int(T/fil.dt)
+        width = prof.get_equivalent_width()
+        pw = (width*bins).astype(int)
+        SP_scale = np.sqrt(fil.nspec*profmax*area/pw)
+    except:
+        SP_scale = 1 # Regular periodicity injection
 
     # Target SNR
     warnings.warn("Assuming 2 (summed) polarizations.")
     snr = smean*gain*np.sqrt(2*tint*bw)/tsys*np.sqrt(1/dutycycle-1)
     print "Expected SNR of injected pulsar signal (after folding " \
             "and integrating over frequency): %s" % snr
-    return snr
+    return snr*SP_scale
 
 
 def inject(infile, outfn, prof, period, dm, nbitsout=None, 
@@ -887,6 +904,7 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
     else:
         get_phases = lambda times: times/period % 1
 
+
     # Create the output filterbank file
     if nbitsout is None:
         nbitsout = fil.nbits
@@ -902,7 +920,7 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
         elif '.fits' in fil.filename:
             outfil = fil
 
-    if outfil.nbits == 8:
+    if outfil.nbits == 8 and False:
         raise NotImplementedError("This code is out of date. 'delays' is not " \
                                     "done in this way anymore..")
         # Read the first second of data to get the global scaling to use
@@ -926,9 +944,32 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
     sys.stdout.flush()
     oldprogress = -1
     
+    ### Added by Alex : August 2015 ###
+    initial_gulp = leftover = 0
+    if args.epoch is not None:
+        try:
+            epoch_type = (args.epoch.split(',')[0]).lower()
+            epoch_val  = float(args.epoch.split(',')[1])
+        except:
+            epoch_type = 's'
+            epoch_val  = float(args.epoch)
+        finally:
+            assert epoch_type in 's mjd'
+            if epoch_type == 'mjd':
+                t1 = Time(fil.header['tstart'],format='mjd')
+                t2 = Time(epoch_val,format='mjd')
+                gulp_time = (t2-t1).sec
+            else:
+                gulp_time = epoch_val
+            initial_gulp = int(gulp_time/fil.dt)
+            leftover = (gulp_time/fil.dt-initial_gulp)*fil.dt
+            if initial_gulp > fil.nspec:
+                print "Epoch exceeds data! Injecting at beginning instead."
+                initial_gulp = leftover = 0
+            
     # Loop over data
-    lobin = 0
-    spectra = fil.get_spectra(0, block_size)
+    lobin = initial_gulp
+    spectra = fil.get_spectra(lobin, block_size)
     numread = spectra.shape[0]
     while numread:
         if pulsar_only:
@@ -937,7 +978,7 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
             spectra *= 0
         hibin = lobin+numread
         # Sample at middle of time bin
-        times = (np.arange(lobin, hibin, 1.0/NINTEG_PER_BIN)+0.5/NINTEG_PER_BIN)*fil.dt
+        times = (np.arange(lobin, hibin, 1.0/NINTEG_PER_BIN)+0.5/NINTEG_PER_BIN)*fil.dt+leftover
         #times = (np.arange(lobin, hibin)+0.5)*fil.dt
         phases = get_phases(times)
         profvals = prof(phases)
@@ -946,8 +987,7 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
         shape[0] /= NINTEG_PER_BIN
         profvals.shape = shape
         toinject = profvals.mean(axis=1)
-        #toinject = profvals
-    
+        
         ####   Modification by Alex Josephy (July 2015)   ####
         #   Goal was: Inject pulses with tiny duty cycle- simulating single bursts
         #   Solution is: Skip n pulses for every written pulse (n=args.skip)
@@ -958,6 +998,11 @@ def inject(infile, outfn, prof, period, dm, nbitsout=None,
             mask = (np.zeros((fil.nchans,len(times)))+times/period).T
             mask = (mask - ph_delays).astype(int)
             toinject[ mask % (args.skip+1) != 1 ] = 0.
+        ####
+
+        #### Inject into integer typed data (Added by Alex)
+        if 'int' in str(spectra.dtype): 
+            toinject = np.round(toinject).astype(spectra.dtype)        
         ####
 
         if np.ndim(toinject) > 1:
@@ -1055,7 +1100,16 @@ def get_scaling_from_snr(fil, prof, cfgstrs):
     """
     cfgs = parse_cfgstr(cfgstrs)
     snr = float(cfgs['snr'])
-    rms = float(cfgs['rms'])
+    try:
+        rms = float(cfgs['rms'])
+    except:
+        print "No rms supplied. Using prepdata to calculate..."
+        s  = "snr=$(prepdata -nobary -o inj_tmp -dm "+args.dm
+        s += " "+args.infile+" | awk '/deviation/{print $4}')"
+        s += " && rm inj_tmp.* && echo -n $snr"
+        stdout, stderr = Popen([s], stdout=PIPE, shell=True).communicate()
+        rms = float(stdout) 
+        print "rms=%.2f" % rms 
     scale = scale_from_snr(fil, prof, snr=snr, rms=rms)
     return scale
 
@@ -1371,6 +1425,10 @@ if __name__ == '__main__':
                         "in seconds OR 'nom_f,t' to specify time at ref.freq. " \
                         "Default ref.freq. is lowest freq." \
                         "(Default: None -- i.e Use DM for scattering)")
+    parser.add_argument("--epoch", "-e", type=float, default=None, 
+                    help="Specify epoch of first pulse in two ways."\
+                        "1. Offset from start by x seconds. Format: x OR s,x"\
+                        "2. Specify a MJD of x. format: mjd,x")
     parser.add_argument("infile", \
                     help="File that will receive synthetic pulses.")
     args = parser.parse_args()

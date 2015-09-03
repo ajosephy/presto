@@ -4,6 +4,7 @@ import filterbank
 from filterbank import FilterbankFile
 from psrfits import PsrfitsFile
 from psrfits2fil import translate_header
+import psr_utils
 import numpy as np
 
 
@@ -154,6 +155,20 @@ class GeneralFile:
                      self.get_spectra(0,self.nspec),self.nbits)
         elif isinstance(self.base, PsrfitsFile):
             self.fits.writeto(outfn)
+    
+    def dedisperse(self, DM):
+        """
+        Dedisperse entire spectra and return timeseries.
+        """
+        spectra = self.get_spectra(0,self.nspec)
+        fs = self.frequencies
+        delays = psr_utils.delay_from_DM(DM,fs)
+        delays -= delays.min()
+        delays = np.round(delays/self.dt)
+        B = np.zeros(self.nspec,spectra.dtype)
+        for i,d in enumerate(delays):
+            B += np.hstack((spectra[d:,i],spectra[:d,i]))
+        return B
 
 def create_filterbank_file(outfn, header, spectra=None, nbits=8, \
                            verbose=False, mode='append'):
@@ -179,3 +194,4 @@ def remove_ch_transforms(fitsf,spectra,isub):
         return np.clip(((spectra / w - o) / s), 0, 255).astype('uint8')
     else:
         raise NotImplementedError("Only implemented for psrfits files")
+
