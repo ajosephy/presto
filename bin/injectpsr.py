@@ -1342,7 +1342,8 @@ class ScaleHelpAction(argparse.Action):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='injectpsr.py', \
-                    description="v0.7 Patrick Lazarus (Jan 16, 2014)")
+                    description="Core program: v0.7 Patrick Lazarus (Jan 16, 2014). "\
+                                "Additions by Alex Josephy (July 2015)")
     parser.add_argument("--dm", dest='dm', type=str, \
                     help="The DM of the (fake) injected pulsar signal. " \
                         "OR the nominal DM with the injected DM as 'nomDM,DM'. " \
