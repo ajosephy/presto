@@ -1426,8 +1426,8 @@ if __name__ == '__main__':
                         "Default ref.freq. is lowest freq." \
                         "(Default: None -- i.e Use DM for scattering)")
     parser.add_argument("--epoch", "-e", type=float, default=None, 
-                    help="Specify epoch of first pulse in two ways."\
-                        "1. Offset from start by x seconds. Format: x OR s,x"\
+                    help="Specify epoch of first pulse in two ways.\n"\
+                        "1. Offset from start by x seconds. Format: x OR s,x\n"\
                         "2. Specify a MJD of x. format: mjd,x")
     parser.add_argument("infile", \
                     help="File that will receive synthetic pulses.")
